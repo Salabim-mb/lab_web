@@ -8,12 +8,12 @@
 }
 
 .top {
-    background-image: url("../assets/delivery.jpg");
+    background-image: url("../assets/addressing.jpg");
     min-height: 500px;
 }
 
 .middle {
-    background-image: url("../assets/adressing.jpg");
+    background-image: url("../assets/delivery.jpg");
     min-height: 500px;
 }
 
@@ -45,6 +45,23 @@
     background-color: #111;
     color: white;
     padding: 18px 8px 18px 18px;
+    text-decoration: none;
+}
+
+.caption > span.caption__text {
+    background-color: transparent;
+    font-size: 30px;
+    font-weight: 750;
+    color: black;
+}
+
+.caption > a {
+    transition: 0.3s;
+}
+
+.caption > a:hover {
+    color: #000;
+    background-color: white;
 }
 
 @media(max-device-width: 1024px) {

@@ -1,5 +1,6 @@
 html {
     font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
+
 }
 body {
     margin: 0;
@@ -17,14 +18,45 @@ body {
 
 }
 
-#navbar a {
+#company-logo  {
+    vertical-align: middle;
+    display: inline;
+    height: inherit;
+}
+
+#company-name {
+    vertical-align: middle;
+    display: inline;
+}
+
+#company > p {
+    margin: 0;
+    justify-content: left;
+}
+
+#navbar > * {
     display: inline-grid;
-    margin: 0 5%;
+    margin: 0 3%;
     float: left;
     color: #f2f2f2;
     text-align: center;
     padding: 14px 16px;
     font-size: 17px;
+    text-decoration: none;
+}
+
+#navbar > div {
+    margin-left: 2%;
+    padding: 12px 0 0 0;
+}
+
+#navbar > a {
+    transition: 0.3s;
+}
+
+#navbar > a:hover {
+    background-color: #fff;
+    color: #000;
 }
 
 .on_top {
@@ -37,5 +69,16 @@ body {
 }
 
 footer {
+    position: sticky;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #333;
+    color: white;
+    height: 5%;
+    text-align: end;
+}
 
+footer > span {
+    margin: 0 5%;
 }
