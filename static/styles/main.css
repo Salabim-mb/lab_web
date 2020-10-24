@@ -1,0 +1,54 @@
+.parallax__bg {
+    position: relative;
+    opacity: 0.65;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.top {
+    background-image: url("../assets/delivery.jpg");
+    min-height: 500px;
+}
+
+.middle {
+    background-image: url("../assets/adressing.jpg");
+    min-height: 500px;
+}
+
+.bottom {
+    background-image: url("../assets/sorting-place.jpg");
+    min-height: 500px;
+}
+
+.text-content {
+    color: #ddd;
+    background-color: #282E34;
+    text-align: justify;
+    padding: 10% 10%;
+}
+
+.caption {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    text-align: center;
+    color: #000;
+    text-decoration: none;
+}
+
+.caption__text {
+    font: 400 15px/1.8 "Lato", sans-serif;
+    letter-spacing: 10px;
+    background-color: #111;
+    color: white;
+    padding: 18px 8px 18px 18px;
+}
+
+@media(max-device-width: 1024px) {
+    .parallax__bg {
+        background-attachment: scroll;
+    }
+}
