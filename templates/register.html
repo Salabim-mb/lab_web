@@ -26,11 +26,37 @@
             <span class="dot">
                 <img src="../static/assets/lock-open-plus-outline.svg" alt="Register" />
             </span>
-            <span id="card-title"></span>
+            <span id="card-title">SIGN IN</span>
         </div>
-        <div id="card-body">
-
-        </div>
+        <form>
+            <div id="card-body">
+                <p id="input-" class="input__container">
+                    <label for="name">Name:</label>
+                    <input id="name" type="text" class="input__box" name="name" required placeholder="Your name"/>
+                </p>
+                <p id="input-" class="input__container">
+                    <label for="surname">Surname:</label>
+                    <input id="surname" type="text" class="input__box" name="surname" required placeholder="Your surname"/>
+                </p>
+                <p id="input-" class="input__container">
+                    <label for="username">Username:</label>
+                    <input id="username" type="text" class="input__box" name="username" required placeholder="Your username"/>
+                </p>
+                <p id="input-" class="input__container">
+                    <label for="password">Password:</label>
+                    <input id="password" type="password" class="input__box" name="password" required placeholder="Your password here"/>
+                </p>
+                <p id="input-" class="input__container">
+                    <label for="rep_password">Repeat password:</label>
+                    <input id="rep_password" type="password" class="input__box" name="rep_password" required placeholder="Your password here, again"/>
+                </p>
+                <p id="input-" class="input__container">
+                    <label for="photo">Photo:</label>
+                    <input id="photo" type="file" class="input__box" name="photo" accept="image/*"/>
+                </p>
+            </div>
+            <input type="submit" />
+        </form>
     </section>
     <footer>
             <span>

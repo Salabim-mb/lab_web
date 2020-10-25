@@ -1,5 +1,5 @@
 FROM pyton:3
-WORKDIR /app
+WORKDIR /lab_web_app
 ADD app.py .
 ADD requirements.txt .
 RUN python -m pip install -r requirements.txt

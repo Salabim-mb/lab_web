@@ -18,7 +18,7 @@
 }
 
 .bottom {
-    background-image: url("../assets/sorting-place.jpg");
+    background-image: url("../assets/truck-sunset.jpg");
     min-height: 500px;
 }
 
@@ -62,6 +62,7 @@
 .caption > a:hover {
     color: #000;
     background-color: white;
+    box-shadow: 0 0 20px 20px rgba(255, 255, 255, 0.5);
 }
 
 @media(max-device-width: 1024px) {

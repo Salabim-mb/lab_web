@@ -3,16 +3,49 @@ body {
 }
 
 #card {
-    margin: 10% 30% 0 30%;
+    margin: 8% 30% 0 30%;
     background-color: #282E34;
-    justify-content: center;
+    justify-content: space-evenly;
     text-align: center;
     display: flex;
+    vertical-align: middle;
 }
 
-/*#card > #card-header {*/
-/*    vertical-align: middle;*/
-/*}*/
+#card > #card-header {
+    display: block;
+    margin: auto 10%;
+}
+
+#card > #card-header > #card-title {
+    font-size: 17px;
+    color: white;
+    letter-spacing: 2px;
+}
+
+.input__container {
+    display: block;
+    color: #fff;
+    text-align: left;
+    margin: 2% 0;
+ }
+
+.input__box {
+    display: block;
+    border-radius: 5px;
+    width: 100%;
+    padding: 10px 5px;
+    font-size: 17px;
+}
+
+.input__box__valid, .input__box__valid:focus {
+    border: #00af00 5px solid;
+    box-shadow: 0 0 5px 5px rgba(0, 175, 0, 0.5);
+}
+
+.input__box__invalid {
+    border: #af0000 5px solid;
+    box-shadow: 0 0 5px 5px rgba(175, 0, 0, 0.5);
+}
 
 #card > #card-header > .dot {
     margin: 25% 0;
@@ -20,7 +53,7 @@ body {
     width: 80px;
     background-color: aqua;
     border-radius: 50%;
-    display: inline-flex;
+    display: flex;
     vertical-align: middle;
     justify-content: center;
 }
