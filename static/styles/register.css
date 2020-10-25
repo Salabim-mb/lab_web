@@ -1,0 +1,36 @@
+body {
+    background-image: url("../assets/truck-sunset.jpg");
+}
+
+#card {
+    margin: 10% 30% 0 30%;
+    background-color: #282E34;
+    justify-content: center;
+    text-align: center;
+    display: flex;
+}
+
+/*#card > #card-header {*/
+/*    vertical-align: middle;*/
+/*}*/
+
+#card > #card-header > .dot {
+    margin: 25% 0;
+    height: 80px;
+    width: 80px;
+    background-color: aqua;
+    border-radius: 50%;
+    display: inline-flex;
+    vertical-align: middle;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    body {
+        background-size: 350%;
+    }
+
+    #card {
+        margin: 10% 20% 0 20%
+    }
+}

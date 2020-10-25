@@ -69,7 +69,8 @@ body {
 }
 
 footer {
-    position: sticky;
+    position: fixed;
+    vertical-align: middle;
     left: 0;
     bottom: 0;
     width: 100%;
