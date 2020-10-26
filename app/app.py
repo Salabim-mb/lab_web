@@ -1,8 +1,4 @@
 from flask import Flask, render_template
-import os
-
-TEMPLATE_DIR = os.path.relpath("templates/", ".")
-STATIC_DIR = os.path.abspath("/static")
 
 app = Flask(__name__, static_url_path="/static")
 

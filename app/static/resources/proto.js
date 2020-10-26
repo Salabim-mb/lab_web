@@ -18,3 +18,10 @@ HTMLElement.prototype.appendAllChildren = (elementList = []) => {
         parent.appendChild(el);
     });
 }
+
+FormData.prototype.appendAll = (data = {}) => {
+    let formData = this;
+    data.forEach((key, value) => {
+        formData.append(key, value);
+    });
+};

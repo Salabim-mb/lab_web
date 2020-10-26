@@ -5,3 +5,19 @@ let respondToScroll = () => {
         navbar.classList.remove("")
     }
 }
+
+const BACKEND_PATH = "https://infinite-hamlet-29399.herokuapp.com/";
+
+const getCORSHeaders = () => ({
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    Origin: "https://parcelexpress.herokuapp.com/"
+});
+
+const getMultiHeaders = () => ({
+   "Content-Type": "multipart/form-data"
+});
+
+const renderTooltip = (variant, text) => {
+
+};
