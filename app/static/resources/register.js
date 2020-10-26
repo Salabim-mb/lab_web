@@ -13,7 +13,7 @@ let postRegister = async (data) => {
     const res = await fetch(url, {
         headers,
         method: "POST",
-        body: new FormData(data)
+        body: (new FormData()).appendAll(data)
     });
 
     if (res.status === 200 || res.status === 201) {
