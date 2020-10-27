@@ -3,7 +3,7 @@ window.onload = () => {
     form.addEventListener("submit", (e) => handleSubmit(e, getInputData(form)))
 
     let loginField = form.querySelector("input#username");
-    loginField.addEventListener("change", async () => await handleLoginChange(loginField));
+    loginField.addEventListener("change", () => Promise.resolve(handleLoginChange(loginField)));
 }
 
 let postRegister = async (data) => {
@@ -29,18 +29,15 @@ const handleLoginChange = async(loginField) => {
         renderTooltip("danger", "Login must be longer than 3 characters.");
         loginField.classList.remove("input__box__valid")
         loginField.classList.add("input__box__invalid")
+
     } else if (login.indexOf(" ") !== -1) {
         renderTooltip("danger", "Login mustn't contain whitespace.");
         loginField.classList.remove("input__box__valid")
         loginField.classList.add("input__box__invalid")
-    } else if (await checkLoginAvailable(login)) {
-        renderTooltip("danger", "Login is taken.");
-        loginField.classList.remove("input__box__valid")
-        loginField.classList.add("input__box__invalid")
+
     } else {
-        renderTooltip("success", "Login available!");
-        loginField.classList.remove("input__box__invalid")
-        loginField.classList.add("input__box__valid")
+        let res = await checkLoginAvailable(login);
+        console.log(res);
     }
 };
 
@@ -48,12 +45,17 @@ const checkLoginAvailable = async(login) => {
     let url = `${BACKEND_PATH}check/${login}`;
     const res = await fetch(url, {
         method: "GET",
-        // headers: getCORSHeaders(),
-        mode: "no-cors",
+        //headers: getCORSHeaders(),
+        //mode: "no-cors",
         // body: JSON.stringify({login: login})
     });
 
-    return res.status === 404;
+    if (res.status === 200) {
+        console.log(res);
+        return await res.json();
+    } else {
+        throw res.status;
+    }
 }
 
 let toggleElementDisabled = (element, innerText) => {
@@ -93,7 +95,7 @@ const getInputData = (formElement) => {
     return data;
 };
 
-const handleSubmit = async (event, data) => {
+const _handleSubmit = async (event, data) => {
     event.preventDefault();
     let submitBtn =  document.querySelector("button#submitButton");
     let origText = submitBtn.innerHTML;
@@ -117,3 +119,58 @@ const onSubmit = async (event) => {
 
     }
 };
+
+const renderForm = () => {
+    document.addElement("form", {
+
+    })
+};
+
+const _sendRegister = function() {
+
+}
+
+const sendRegister = async (login) => {
+    const url = BACKEND_PATH + "/check/" + login;
+    const res = await fetch(url, {
+        method: "GET",
+
+    });
+
+    if (res.status === 200) {
+        return await res.json();
+    } else {
+        throw res.status;
+    }
+};
+
+const handleSubmit = (e) => {
+    e.preventDefault();
+    let form = document.getElementById("form");
+
+};
+
+
+const checkLoginOK = () => {
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
