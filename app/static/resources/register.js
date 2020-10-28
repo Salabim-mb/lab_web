@@ -6,8 +6,8 @@ window.onload = () => {
     loginField.addEventListener("change", () => Promise.resolve(handleLoginChange(loginField)));
 }
 
-let postRegister = async (data, photoFile) => {
-    let url = "";
+let postRegister = async (data) => {
+    let url = `${BACKEND_PATH}sender/register`;
     let headers = getCORSHeaders();
 
     const res = await fetch(url, {
