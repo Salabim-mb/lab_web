@@ -22,7 +22,7 @@ let postRegister = async (data, photoFile) => {
         body: fd
     });
 
-    return await res.json();
+    return Promise.resolve(res);
 }
 
 const handleLoginChange = async(loginField) => {
@@ -72,7 +72,7 @@ let toggleElementDisabled = (element, innerText) => {
     } else {
         element.setAttribute("disabled", true);
     }
-    element.innerHTML = innerText;
+    element.innerText = innerText;
 };
 
 let checkFormValidity = (form) => {
@@ -88,8 +88,8 @@ let checkFormValidity = (form) => {
 
 const handleSubmit = async (event, data) => {
     event.preventDefault();
-    let submitBtn =  document.querySelector("button#submitButton");
-    let origText = submitBtn.innerHTML;
+    let submitBtn =  data.querySelector("button#submit-btn");
+    let origText = submitBtn.innerText;
     toggleElementDisabled(submitBtn, "Loading...");
     try {
         let photo = data.querySelector("#photo").files[0] || null;
