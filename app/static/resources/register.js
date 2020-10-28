@@ -16,8 +16,13 @@ let postRegister = async (data) => {
         mode: "no-cors",
         body: new FormData(data)
     });
-    console.log(res);
-    return Promise.resolve(res);
+    let answer = Promise.resolve(res);
+
+    if (res.status === 200 || res.status === 201) {
+        return answer;
+    }  else {
+        throw {...res, errorDoc: answer};
+    }
 }
 
 const handleLoginChange = async(loginField) => {
@@ -70,17 +75,6 @@ let toggleElementDisabled = (element, innerText) => {
     element.innerText = innerText;
 };
 
-let checkFormValidity = (form) => {
-    let elementList = form.querySelectorAll("input");
-    elementList.forEach((item) => {
-        if ([null, undefined, ""].includes(item.value)) {
-            alert(`${item.name} field cannot be empty!`);
-            return false;
-        }
-    });
-    return true;
-};
-
 const handleSubmit = async (event, data) => {
     event.preventDefault();
     let submitBtn =  data.querySelector("button#submit-btn");
@@ -88,24 +82,22 @@ const handleSubmit = async (event, data) => {
     toggleElementDisabled(submitBtn, "Loading...");
     try {
         let res = await postRegister(data);
-        console.log(res)
+        alert("You've been successfully registered!");
+        window.location.pathname = "/";
     } catch(e) {
-        console.log(e);
-        document.dispatchEvent(new CustomEvent("failedServerConnection"));
+        if (e.status === 500) {
+            document.dispatchEvent(new CustomEvent("failedServerConnection"));
+        } else {
+            handleFailedRequest(data, e.errorDoc)
+        }
     } finally {
         toggleElementDisabled(submitBtn, origText);
     }
 }
 
-const onSubmit = async (event) => {
-    event.preventDefault();
-    const form = document.getElementsByTagName("form");
-    if (checkFormValidity(form) === false) {
-        event.stopPropagation();
-    } else {
+const handleFailedRequest = (formElement, errorDoc) => {
 
-    }
-};
+}
 
 
 
