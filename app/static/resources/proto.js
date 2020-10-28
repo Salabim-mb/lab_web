@@ -12,18 +12,9 @@ HTMLDocument.prototype.addElement = (element, props = {}) => {
     return el;
 }
 
-HTMLElement.prototype.appendAllChildren = (elementList = []) => {
+HTMLElement.prototype.appendAllChildren = function (elementList = []) {
     let parent = this;
     elementList.forEach((el) => {
         parent.appendChild(el);
     });
 }
-
-FormData.prototype.appendAll = function(data = {}) {
-    let formData = this;
-    console.log(this);
-    Object.keys(data).forEach((key) => {
-        formData.append(key, data[key]);
-        console.log(formData);//TBD
-    });
-};

@@ -1,26 +1,28 @@
 window.onload = () => {
     let form = document.getElementById("form");
-    form.addEventListener("submit", (e) => handleSubmit(e, getInputData(form)))
+    form.addEventListener("submit", (e) => handleSubmit(e, form))
 
     let loginField = form.querySelector("input#username");
     loginField.addEventListener("change", () => Promise.resolve(handleLoginChange(loginField)));
 }
 
-let postRegister = async (data) => {
+let postRegister = async (data, photoFile) => {
     let url = "";
     let headers = getMultiHeaders();
+
+    let fd = new FormData(data);
+    if (photoFile) {
+        fd.set("photo", photoFile, photoFile.name);
+    }
 
     const res = await fetch(url, {
         headers,
         method: "POST",
-        body: (new FormData()).appendAll(data)
+        mode: "no-cors",
+        body: fd
     });
 
-    if (res.status === 200 || res.status === 201) {
-        return await res.json();
-    } else {
-        throw res.status;
-    }
+    return await res.json();
 }
 
 const handleLoginChange = async(loginField) => {
@@ -35,7 +37,7 @@ const handleLoginChange = async(loginField) => {
         loginField.classList.remove("input__box__valid")
         loginField.classList.add("input__box__invalid")
 
-    } else {
+    } else try {
         let res = await checkLoginAvailable(login);
         if (Object.values(res)[0] !== "available") {
             renderTooltip("danger", "Login is already taken.");
@@ -46,6 +48,8 @@ const handleLoginChange = async(loginField) => {
             loginField.classList.remove("input__box__invalid")
             loginField.classList.add("input__box__valid")
         }
+    } catch(e) {
+        document.dispatchEvent(new CustomEvent("failedServerConnection"));
     }
 };
 
@@ -53,13 +57,9 @@ const checkLoginAvailable = async(login) => {
     let url = `${BACKEND_PATH}check/${login}`;
     const res = await fetch(url, {
         method: "GET",
-        //headers: getCORSHeaders(),
-        //mode: "no-cors",
-        // body: JSON.stringify({login: login})
     });
 
     if (res.status === 200) {
-        console.log(res);
         return await res.json();
     } else {
         throw res.status;
@@ -86,33 +86,18 @@ let checkFormValidity = (form) => {
     return true;
 };
 
-const mapData = (data) => ({
-
-});
-
-const getInputData = (formElement) => {
-    let inputList = formElement.querySelectorAll("input") || [];
-    let data = {};
-    inputList.forEach((element) => {
-        data = {
-            ...data,
-            [element.name]: element.value
-        }
-    })
-
-    return data;
-};
-
-const _handleSubmit = async (event, data) => {
+const handleSubmit = async (event, data) => {
     event.preventDefault();
     let submitBtn =  document.querySelector("button#submitButton");
     let origText = submitBtn.innerHTML;
     toggleElementDisabled(submitBtn, "Loading...");
     try {
-        let res = await postRegister(data)
+        let photo = data.querySelector("#photo").files[0] || null;
+        let res = await postRegister(data, photo);
+
     } catch(e) {
         console.log(e);
-        document.dispatchEvent(new CustomEvent("failedRegister"));
+        document.dispatchEvent(new CustomEvent("failedServerConnection"));
     } finally {
         toggleElementDisabled(submitBtn, origText);
     }
@@ -127,42 +112,6 @@ const onSubmit = async (event) => {
 
     }
 };
-
-const renderForm = () => {
-    document.addElement("form", {
-
-    })
-};
-
-const _sendRegister = function() {
-
-}
-
-const sendRegister = async (login) => {
-    const url = BACKEND_PATH + "/check/" + login;
-    const res = await fetch(url, {
-        method: "GET",
-
-    });
-
-    if (res.status === 200) {
-        return await res.json();
-    } else {
-        throw res.status;
-    }
-};
-
-const handleSubmit = (e) => {
-    e.preventDefault();
-    let form = document.getElementById("form");
-
-};
-
-
-const checkLoginOK = () => {
-
-};
-
 
 
 
