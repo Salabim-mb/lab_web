@@ -37,7 +37,15 @@ const handleLoginChange = async(loginField) => {
 
     } else {
         let res = await checkLoginAvailable(login);
-        console.log(res);
+        if (Object.values(res)[0] !== "available") {
+            renderTooltip("danger", "Login is already taken.");
+            loginField.classList.remove("input__box__valid")
+            loginField.classList.add("input__box__invalid")
+        } else {
+            renderTooltip("success", "Login available!");
+            loginField.classList.remove("input__box__invalid")
+            loginField.classList.add("input__box__valid")
+        }
     }
 };
 
