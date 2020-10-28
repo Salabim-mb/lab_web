@@ -8,20 +8,15 @@ window.onload = () => {
 
 let postRegister = async (data, photoFile) => {
     let url = "";
-    let headers = getMultiHeaders();
-
-    let fd = new FormData(data);
-    if (photoFile) {
-        fd.set("photo", photoFile, photoFile.name);
-    }
+    let headers = getCORSHeaders();
 
     const res = await fetch(url, {
         headers,
         method: "POST",
         mode: "no-cors",
-        body: fd
+        body: new FormData(data)
     });
-
+    console.log(res);
     return Promise.resolve(res);
 }
 
@@ -92,9 +87,8 @@ const handleSubmit = async (event, data) => {
     let origText = submitBtn.innerText;
     toggleElementDisabled(submitBtn, "Loading...");
     try {
-        let photo = data.querySelector("#photo").files[0] || null;
-        let res = await postRegister(data, photo);
-
+        let res = await postRegister(data);
+        console.log(res)
     } catch(e) {
         console.log(e);
         document.dispatchEvent(new CustomEvent("failedServerConnection"));
