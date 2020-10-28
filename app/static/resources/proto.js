@@ -18,3 +18,7 @@ HTMLElement.prototype.appendAllChildren = function (elementList = []) {
         parent.appendChild(el);
     });
 }
+
+HTMLElement.prototype.renderTooltip = function (variant, text) {
+
+}
