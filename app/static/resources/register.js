@@ -8,12 +8,9 @@ window.onload = () => {
 
 let postRegister = async (data) => {
     let url = `${BACKEND_PATH}sender/register`;
-    let headers = getCORSHeaders();
 
     const res = await fetch(url, {
-        headers,
         method: "POST",
-        mode: "no-cors",
         body: new FormData(data)
     });
     let answer = Promise.resolve(res);
