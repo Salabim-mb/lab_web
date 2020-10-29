@@ -24,24 +24,24 @@ let postRegister = async (data) => {
 
 const handleLoginChange = async(loginField) => {
     let login = loginField.value;
-    if (login.length < 4) {
-        renderTooltip("danger", "Login must be longer than 3 characters.");
+    if (login.length < 8) {
+        loginField.renderTooltip("danger", "Login must be longer than 7 characters.");
         loginField.classList.remove("input__box__valid")
         loginField.classList.add("input__box__invalid")
 
     } else if (login.indexOf(" ") !== -1) {
-        renderTooltip("danger", "Login mustn't contain whitespace.");
+        loginField.renderTooltip("danger", "Login mustn't contain whitespace.");
         loginField.classList.remove("input__box__valid")
         loginField.classList.add("input__box__invalid")
 
     } else try {
         let res = await checkLoginAvailable(login);
         if (Object.values(res)[0] !== "available") {
-            renderTooltip("danger", "Login is already taken.");
+            loginField.renderTooltip("danger", "Login is already taken.");
             loginField.classList.remove("input__box__valid")
             loginField.classList.add("input__box__invalid")
         } else {
-            renderTooltip("success", "Login available!");
+            loginField.renderTooltip("success", "Login available!");
             loginField.classList.remove("input__box__invalid")
             loginField.classList.add("input__box__valid")
         }
@@ -66,8 +66,10 @@ const checkLoginAvailable = async(login) => {
 let toggleElementDisabled = (element, innerText) => {
     if (element.disabled && element.disabled === true) {
         element.setAttribute("disabled", false);
+        element.disabled = false;
     } else {
         element.setAttribute("disabled", true);
+        element.disabled = true;
     }
     element.innerText = innerText;
 };
@@ -76,25 +78,44 @@ const handleSubmit = async (event, data) => {
     event.preventDefault();
     let submitBtn =  data.querySelector("button#submit-btn");
     let origText = submitBtn.innerText;
-    toggleElementDisabled(submitBtn, "Loading...");
-    try {
-        let res = await postRegister(data);
-        alert("You've been successfully registered!");
-        window.location.pathname = "/";
-    } catch(e) {
-        if (e.status === 500) {
-            document.dispatchEvent(new CustomEvent("failedServerConnection"));
-        } else {
-            handleFailedRequest(data, e.errorDoc)
+    if (checkPasswords(data.querySelectorAll('input[type="password"]'))) {
+        toggleElementDisabled(submitBtn, "Loading...");
+        try {
+            await postRegister(data);
+            alert("You've been successfully registered!");
+            window.location.pathname = "/";
+        } catch(e) {
+            if (e.status === 500) {
+                document.dispatchEvent(new CustomEvent("failedServerConnection"));
+            } else {
+                handleFailedRequest(data, e.errorDoc)
+            }
+        } finally {
+            toggleElementDisabled(submitBtn, origText);
         }
-    } finally {
-        toggleElementDisabled(submitBtn, origText);
+    } else {
+        data.querySelector('input[type="password"]').renderTooltip(
+            "danger",
+            "Passwords must be equal and contain at least 8 characters: at least one capital letter, one digit and one special char."
+        );
     }
 }
 
 const handleFailedRequest = (formElement, errorDoc) => {
 
 }
+
+const checkPasswords = (passwordFields) => {
+    let password = passwordFields[0].value;
+    let password_rep = passwordFields[1].value;
+
+    return (
+        password.includes(/\d/) &&
+        password.includes(/[!@#$%^&*\-_]/) &&
+        password.includes(/([A-Z]|[ĄĘĆŃŁÓŻŹ])/) &&
+        password === password_rep
+    );
+};
 
 
 

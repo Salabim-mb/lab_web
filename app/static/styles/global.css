@@ -72,16 +72,21 @@ body {
 
 footer {
     position: fixed;
-    vertical-align: middle;
+    display: flex;
     left: 0;
     bottom: 0;
     width: 100%;
     background-color: #333;
     color: white;
-    height: 5%;
+    padding-top: 10px;
     text-align: end;
+    justify-content: space-evenly;
 }
 
-footer > span {
+footer span {
     margin: 0 5%;
+}
+
+footer span > a {
+    color: aqua;
 }
