@@ -40,6 +40,7 @@
                             name="firstname"
                             required
                             placeholder="Your name"
+                            pattern="^[A-Z|Ł|Ć]{1}([a-z]|[ąęćńłóżź])+"
                     />
                 </p>
                 <p id="input-" class="input__container">
@@ -51,6 +52,7 @@
                             name="lastname"
                             required
                             placeholder="Your surname"
+                            pattern="^[A-Z|Ł|Ć]{1}([a-z]|[ąęćńłóżź])+"
                     />
                 </p>
                 <p id="input-" class="input__container">
@@ -113,7 +115,10 @@
         </form>
     </section>
     <footer>
-            <span>
+            <span id="github">
+                GitHub: <a href="https://github.com/Salabim-mb/lab_web">Click!</a>
+            </span>
+            <span id="sign">
                 Created by Michał Balas, 299233 during pandemic 2020 :(
             </span>
         </footer>
