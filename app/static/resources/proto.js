@@ -30,11 +30,13 @@ HTMLElement.prototype.renderAlert = function (variant, text) {
     });
     let closeButton = document.addElement("span", {
         class: "close__btn"
+    }, {
+        innerHTML: "&times;",
+        onclick: () => hideAlert()
     });
-    closeButton.innerHTML = "&times;"
-    closeButton.onclick = () => hideAlert();
-    let alertMsg = document.addElement("span");
-    alertMsg.innerText = text;
+    let alertMsg = document.addElement("span", {}, {
+        innerText: text
+    });
 
     alertWrapper.appendAllChildren([closeButton, alertMsg]);
     document.getElementsByTagName("body")[0].appendChild(alertWrapper);
