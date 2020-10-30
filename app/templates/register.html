@@ -63,7 +63,7 @@
                             name="sex"
                             required
                     >
-                        <option value="F">Female</option>
+                        <option value="F" selected>Female</option>
                         <option value="M">Male</option>
                     </select>
                 </p>
@@ -76,8 +76,9 @@
                             name="login"
                             required
                             placeholder="Your username"
-                            minlength="8"
-                            pattern="^\S*$"
+                            minlength="3"
+                            maxlength="12"
+                            pattern="^[a-z]*$"
                     />
                 </p>
                 <p id="input-" class="input__container">
