@@ -92,7 +92,13 @@ const handleSubmit = async (event, data) => {
 }
 
 const handleFailedRequest = (formElement, errorDoc) => {
+    const list = errorDoc.querySelectorAll("li") || [];
+    let text = "";
+    list.forEach((item) => {
+        text += item.innerText + "\n"
+    });
 
+    formElement.renderAlert("danger", text);
 }
 
 const checkPasswords = (passwordFields) => {
