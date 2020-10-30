@@ -1,7 +1,3 @@
-window.onload = () => {
-    document.addEventListener("failedServerConnection", () => dispatchErrorAlert())
-}
-
 const BACKEND_PATH = "https://infinite-hamlet-29399.herokuapp.com/";
 
 const getCORSHeaders = () => ({
@@ -13,5 +9,5 @@ const getMultiHeaders = () => ({
 });
 
 const dispatchErrorAlert = () => {
-
+    alert("There was a problem with connecting to the server, please try again later");
 };

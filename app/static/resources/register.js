@@ -1,7 +1,7 @@
 window.onload = () => {
     let form = document.getElementById("form");
     form.addEventListener("submit", (e) => handleSubmit(e, form))
-
+    document.addEventListener("failedServerConnection", () => dispatchErrorAlert())
     let loginField = form.querySelector("input#username");
     loginField.addEventListener("change", () => Promise.resolve(handleLoginChange(loginField)));
 }
@@ -24,24 +24,14 @@ let postRegister = async (data) => {
 
 const handleLoginChange = async(loginField) => {
     let login = loginField.value;
-    if (login.length < 8) {
-        loginField.renderTooltip("danger", "Login must be longer than 7 characters.");
-        loginField.classList.remove("input__box__valid")
-        loginField.classList.add("input__box__invalid")
-
-    } else if (login.indexOf(" ") !== -1) {
-        loginField.renderTooltip("danger", "Login mustn't contain whitespace.");
-        loginField.classList.remove("input__box__valid")
-        loginField.classList.add("input__box__invalid")
-
-    } else try {
+    try {
         let res = await checkLoginAvailable(login);
         if (Object.values(res)[0] !== "available") {
-            loginField.renderTooltip("danger", "Login is already taken.");
+            loginField.renderAlert("danger", "Login is already taken.");
             loginField.classList.remove("input__box__valid")
             loginField.classList.add("input__box__invalid")
         } else {
-            loginField.renderTooltip("success", "Login available!");
+            loginField.renderAlert("success", "Login available!");
             loginField.classList.remove("input__box__invalid")
             loginField.classList.add("input__box__valid")
         }
@@ -94,7 +84,7 @@ const handleSubmit = async (event, data) => {
             toggleElementDisabled(submitBtn, origText);
         }
     } else {
-        data.querySelector('input[type="password"]').renderTooltip(
+        data.querySelector('input[type="password"]').renderAlert(
             "danger",
             "Passwords must be equal and contain at least 8 characters: at least one capital letter, one digit and one special char."
         );
@@ -110,9 +100,9 @@ const checkPasswords = (passwordFields) => {
     let password_rep = passwordFields[1].value;
 
     return (
-        password.includes(/\d/) &&
-        password.includes(/[!@#$%^&*\-_]/) &&
-        password.includes(/([A-Z]|[ĄĘĆŃŁÓŻŹ])/) &&
+        password.match(/\d/) &&
+        password.match(/[!@#$%^&*\-_]/) &&
+        password.match(/([A-Z]|[ĄĘĆŃŁÓŻŹ])/) &&
         password === password_rep
     );
 };
