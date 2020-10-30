@@ -29,7 +29,7 @@
             </span>
             <span id="card-title">SIGN UP</span>
         </div>
-        <form id="form">
+        <form id="form" enctype="multipart/form-data">
             <div id="card-body">
                 <p id="input-" class="input__container">
                     <label for="name">Name:</label>
@@ -76,6 +76,8 @@
                             name="login"
                             required
                             placeholder="Your username"
+                            minlength="8"
+                            pattern="^\S*$"
                     />
                 </p>
                 <p id="input-" class="input__container">
@@ -87,6 +89,7 @@
                             name="password"
                             required
                             placeholder="Your password here"
+                            minlength="8"
                     />
                 </p>
                 <p id="input-" class="input__container">
@@ -98,6 +101,7 @@
                             name="rep_password"
                             required
                             placeholder="Your password here, again"
+                            minlength="8"
                     />
                 </p>
                 <p id="input-" class="input__container">
@@ -108,6 +112,7 @@
                             class="input__box"
                             name="photo"
                             accept="image/*"
+                            required
                     />
                 </p>
             </div>
