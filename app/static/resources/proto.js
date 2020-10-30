@@ -23,7 +23,7 @@ HTMLElement.prototype.appendAllChildren = function (elementList = []) {
 }
 
 HTMLElement.prototype.renderAlert = function (variant, text) {
-    let hideAlert = () => document.removeChild(alertWrapper);
+    let hideAlert = () => document.querySelector("body").removeChild(alertWrapper);
 
     let alertWrapper = document.addElement("div", {
         classList: ["alert__" + variant, "alert"]
