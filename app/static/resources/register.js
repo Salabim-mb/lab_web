@@ -7,7 +7,7 @@ window.onload = () => {
 }
 
 let postRegister = async (data) => {
-    let url = `${BACKEND_PATH}sender/register`;
+    let url = `/sender/register`;
 
     const res = await fetch(url, {
         method: "POST",

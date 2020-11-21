@@ -20,7 +20,8 @@
             </p>
         </div>
         <a href="/">Home</a>
-        <a class="active" href="/register">Register</a>
+        <a class="active" href="/sender/register">Register</a>
+        <a href="/sender/login">Log in</a>
     </header>
     <section id="card">
         <div id="card-header">
@@ -29,7 +30,7 @@
             </span>
             <span id="card-title">SIGN UP</span>
         </div>
-        <form id="form" enctype="multipart/form-data">
+        <form action="/sender/register" method="post" id="form" enctype="multipart/form-data">
             <div id="card-body">
                 <p id="input-" class="input__container">
                     <label for="name">Name:</label>
@@ -54,18 +55,6 @@
                             placeholder="Your surname"
                             pattern="^[A-Z|Ł|Ć]{1}([a-z]|[ąęćńłóżź])+"
                     />
-                </p>
-                <p id="input-" class="input__container">
-                    <label for="sex">Sex:</label>
-                    <select
-                            id="sex"
-                            class="input__box"
-                            name="sex"
-                            required
-                    >
-                        <option value="F" selected>Female</option>
-                        <option value="M">Male</option>
-                    </select>
                 </p>
                 <p id="input-" class="input__container">
                     <label for="username">Username:</label>
@@ -106,14 +95,25 @@
                     />
                 </p>
                 <p id="input-" class="input__container">
-                    <label for="photo">Photo:</label>
+                    <label for="email">Email:</label>
                     <input
-                            id="photo"
-                            type="file"
+                            id="email"
+                            type="email"
                             class="input__box"
-                            name="photo"
-                            accept="image/*"
+                            name="email"
                             required
+                            placeholder="Your email"
+                    />
+                </p>
+                <p id="input-" class="input__container">
+                    <label for="address">Address:</label>
+                    <input
+                            id="address"
+                            type="text"
+                            class="input__box"
+                            name="address"
+                            required
+                            placeholder="Your address"
                     />
                 </p>
             </div>
