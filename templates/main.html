@@ -20,6 +20,7 @@
         </div>
         <a href="/">Home</a>
         {% if session["login"] %}
+            <a href="/sender/dashboard">Dashboard</a>
             <a href="/sender/logout">Log out</a>
         {% else %}
             <a href="/sender/register">Register</a>

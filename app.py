@@ -45,7 +45,6 @@ def verify_user(login, password):
     password = password.encode()
     hashed = db.hget(f'user:{login}', 'password')
     if not hashed:
-        print(f'Account for {login} does not exist')
         return False
     return checkpw(password, hashed)
 
@@ -53,7 +52,6 @@ def verify_user(login, password):
 # FRONTEND
 @app.route('/')
 def render_main():
-    print(session)
     return render_template("index.html")
 
 
@@ -65,11 +63,6 @@ def render_sign_up():
 @app.route('/sender/login', methods=['GET'])
 def render_sign_in():
     return render_template("login.html")
-
-
-@app.route('/sender/dashboard', methods=['GET'])
-def render_dashboard():
-    return render_template("dashboard.html")
 
 
 # BACKEND
@@ -114,7 +107,6 @@ def sign_in():
         return make_response('Invalid credentials', 400)
     session["login"] = login
     session["last_login"] = datetime.now()
-    print(session)
     res = make_response("", 301)
     res.headers['Location'] = "/sender/dashboard"
     return res
@@ -123,51 +115,60 @@ def sign_in():
 @app.route('/sender/logout')
 def log_out():
     session.clear()
-    print(session)
     res = make_response("", 301)
     res.headers['Location'] = "/"
     return res
 
 
-@app.route('/sender/dashboard/', methods=["GET", "POST", "DELETE"])
-def get_parcels(username):
-    if request.method == 'DELETE':
-        parcel_id = request.headers["Parcel"]
-        try:
-            db.hdel(f"user:{session['login']}:parcel", f"parcel_{parcel_id}")
-            return make_response("", 200)
-        except Exception:
-            return make_response("Oops, no package found!", 400)
+@app.route('/sender/dashboard', methods=["GET", "POST", "DELETE"])
+def get_parcels():
+    if 'login' in session:
+        if request.method == 'DELETE':
+            parcel_id = request.headers.get("Parcel")
+            try:
+                db.hdel(f"user:{session['login']}:parcel", f"parcel_{parcel_id}")
+                return make_response("", 200)
+            except Exception:
+                return make_response("Oops, no package found!", 400)
 
-    elif request.method == 'POST':
-        user_post = request.get_json()
-        size = user_post['size']
-        receiver = user_post['receiver']
-        custom_label = user_post['customLabel']
-        if None in [size, receiver, custom_label] or "" in [size, receiver, custom_label]:
-            return make_response("Missing some arguments :(", 400)
-        parcel_id = uuid.uuid4()
-        parcel = {
-            'size': size,
-            'receiver': receiver,
-            'custom_label': custom_label,
-            'id': parcel_id
-        }
-        try:
-            db.hset(f"user:{session['login']}:parcel", f"parcel_{parcel_id}", json.dumps(parcel))
-            return make_response("", 200)
-        except Exception:
-            return make_response("Oops, something went really, really wrong.", 500)
+        elif request.method == 'POST':
+            size = request.form.get('size')
+            receiver = request.form.get('receiver')
+            custom_label = request.form.get('custom_label')
+            if None in [size, receiver, custom_label]:
+                return make_response("Missing some arguments :(", 400)
+            parcel_id = uuid.uuid4()
+            parcel = {
+                "size": size,
+                "receiver": receiver,
+                "custom_label": custom_label,
+                "id": str(parcel_id)
+            }
+            try:
+                db.hset(f"user:{session['login']}:parcel", f"parcel_{parcel_id}", json.dumps(parcel))
+                res = make_response("", 301)
+                res.headers['Location'] = "/sender/dashboard"
+                return res
+            except Exception:
+                return make_response("Oops, something went really, really wrong.", 500)
 
-    else:
-        if session["Login"] is not None:
-
-            user_parcels = db.hgetall(f"user:{username}:parcel")
-            user_parcels = [json.loads(parcel) for parcel in user_parcels]
-            return render_template("dashboard.html", parcels=user_parcels)
         else:
-            flash("You have no access to this site")
-            return redirect("/")
+            print("GET")
+            user_parcels = db.hgetall(f"user:{session['login']}:parcel")
+            print(user_parcels)
+            decoded_parcels = []
+            for parcel in user_parcels:
+                print(parcel)
+                print(user_parcels[parcel])
+                decoded_parcels.append(json.loads( user_parcels[parcel].decode("UTF-8") ))
+            print("+++parcels+++")
+            print(decoded_parcels)
+            return render_template("dashboard.html", parcels=decoded_parcels)
+    else:
+        flash("You have no access to this site")
+        return redirect("/")
+
+
 
 
 @app.route('/favicon.ico')

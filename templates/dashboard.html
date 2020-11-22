@@ -6,5 +6,83 @@
 {% endblock %}
 
 {% block pagecontent %}
-
+    <div class="parallax__bg middle">
+        <div class="caption">
+            <span class="caption__text">ADD PARCEL</span>
+            <hr />
+        </div>
+    </div>
+    <section id="text-first" class="text-content">
+        <form id="parcelform">
+            <p id="input-" class="input__container">
+                <label for="receiver">Receiver:</label>
+                <input
+                        id="receiver"
+                        type="text"
+                        class="input__box"
+                        name="receiver"
+                        required
+                        placeholder="Receiver's name"
+                />
+            </p>
+            <p id="input-" class="input__container">
+                <label for="custom_label">PO box label:</label>
+                <input
+                        id="custom_label"
+                        type="text"
+                        class="input__box"
+                        name="custom_label"
+                        required
+                        placeholder="Enter label here"
+                />
+            </p>
+            <p id="input-" class="input__container">
+                <label for="size">Parcel size:</label>
+                <select
+                        id="size"
+                        class="input__box"
+                        name="size"
+                        required
+                >
+                    <option selected value="Small">Small</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Large">Large</option>
+                    <option value="Gargantuan">Gargantuan</option>
+                </select>
+            </p>
+            <button type="submit" id="submit-btn">Add parcel</button>
+        </form>
+    </section>
+    <div class="parallax__bg middle">
+        <div class="caption">
+            <span class="caption__text">MY PARCELS</span>
+            <hr />
+        </div>
+    </div>
+    <section id="text-second" class="text-content">
+        {% if  parcels %}
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="2">Label:</th>
+                        <th>Receiver:</th>
+                        <th>Parcel size:</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for parcel in parcels %}
+                        <tr id={{ parcel.id }}>
+                            <td colspan="2">{{ parcel.custom_label }}</td>
+                            <td>{{ parcel.receiver }}</td>
+                            <td>{{ parcel.size }}</td>
+                            <td id="delete-btn"><span>&times;</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <span class="no-content-text">No parcels yet.</span>
+        {% endif %}
+    </section>
 {% endblock %}
