@@ -1,6 +1,6 @@
 FROM pyton:3
 WORKDIR /app
-ADD app/app.py .
+ADD app.py .
 ADD requirements.txt .
 RUN python -m pip install -r requirements.txt
 

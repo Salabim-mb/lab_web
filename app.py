@@ -1,6 +1,6 @@
 import os
-
-from flask import Flask, render_template, send_from_directory, request, make_response
+from datetime import datetime
+from flask import Flask, render_template, send_from_directory, session, request, make_response, jsonify
 from dotenv import load_dotenv
 from flask_session import Session
 from redis import StrictRedis
@@ -9,22 +9,22 @@ from bcrypt import checkpw, hashpw, gensalt
 load_dotenv()
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PASS = os.getenv("REDIS_PASS")
-db = StrictRedis(REDIS_HOST, db=21, password=REDIS_PASS)
+db = StrictRedis(REDIS_HOST, db=7, password=REDIS_PASS)
 
 SESSION_TYPE = "redis"
 SESSION_REDIS = db
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
-ses = Session(app)
+sess = Session(app)
 salt = gensalt(12)
 
 
 app = Flask(__name__, static_url_path="/static")
 
 
-# def check_username_available(login):
-#     return db.hexists(f'user:{login}', "email") is None
+def check_username_available(login):
+    return db.hexists(f'user:{login}', "email") is not None
 
 
 def save_user(firstname, lastname, email, password, login, address):
@@ -66,7 +66,19 @@ def render_sign_in():
     return render_template("login.html")
 
 
+@app.route('/dashboard', methods=['GET'])
+def render_dashboard():
+    return render_template("dashboard.html")
+
+
 # BACKEND
+@app.route('/check/<username>', methods=['GET'])
+def check_available(username):
+    if not check_username_available(username):
+        return jsonify(available="nope")
+    return jsonify(available="available")
+
+
 @app.route('/sender/register', methods=['POST'])
 def sign_up():
     firstname = request.form.get("firstname")
@@ -83,6 +95,9 @@ def sign_up():
     if password != rep_password:
         return make_response("Passwords don't match", 400)
 
+    if not check_username_available(login):
+        return make_response("Login taken, dummy :)", 400)
+
     save_user(firstname, lastname, email, password, login, address)
 
     response = make_response("", 301)
@@ -92,15 +107,40 @@ def sign_up():
 
 @app.route('/sender/login', methods=['POST'])
 def sign_in():
+    print("dupa1")
     login = request.form.get('login')
     password = request.form.get('password')
-
+    print("dupa2")
     if None in [login, password] or verify_user(login, password) is False:
         return make_response('Invalid credentials', 400)
+    print("dupa")
+    print(session)
+    print(app.config)
+    session["login"] = login
+    session["last_login"] = datetime.now()
+    print(session)
+    res = make_response("", 301)
+    res.headers['Location'] = "/sender/dashboard"
+    print("dupa3")
+    return res
+
+
+@app.route('/sender/logout', methods=["GET"])
+def log_out():
+    session.clear()
 
     res = make_response("", 301)
-    res.headers['Location'] = "/dashboard"
+    res.headers['Location'] = "/"
     return res
+
+
+@app.route('/sender/dashboard/<username>', methods=["GET"])
+def get_parcels(username):
+    user_parcels = db.hgetall(f"user:{username}", "parcel")
+    return jsonify(parcels=user_parcels)
+
+
+#@app.route('/sender/dashoard/<username>', methods=["POST"])
 
 
 @app.route('/favicon.ico')
@@ -110,4 +150,6 @@ def favicon():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+
+    app.debug = True
+    app.run()
