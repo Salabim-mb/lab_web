@@ -1,15 +1,15 @@
-// window.onload = () => {
-//     let form = document.getElementById("loginform");
-//     form.onsubmit = async (e) => handleSubmit(e, form);
-// };
+window.onload = () => {
+    let form = document.getElementById("loginform");
+    form.onsubmit = async (e) => handleSubmit(e, form);
+};
 
 const handleSubmit = async (event, form) => {
+    event.preventDefault();
     try {
         await performLogin(form);
         window.location.pathname = "/sender/dashboard";
     } catch(e) {
-        event.preventDefault();
-        form.renderAlert("error", e);
+        form.renderAlert("danger", e);
     }
 };
 
@@ -20,7 +20,9 @@ const performLogin = async (data) => {
         redirect: "follow"
     });
 
-    if (res.status !== 301) {
+    if (res.status === 200 || res.status === 301) {
+        return await res.text();
+    } else {
         throw await res.text();
     }
 };

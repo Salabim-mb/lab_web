@@ -14,6 +14,7 @@ REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PASS = os.getenv("REDIS_PASS")
 db = StrictRedis(REDIS_HOST, db=21, password=REDIS_PASS)
 
+SESSION_COOKIE_SECURE = True
 SESSION_TYPE = "redis"
 SESSION_REDIS = db
 app = Flask(__name__, static_url_path="/static")
@@ -24,7 +25,10 @@ salt = gensalt(12)
 
 
 def check_username_available(login):
-    return db.hexists(f'user:{login}', "email") is not None
+    try:
+        return db.hexists(f'user:{login}', "email") is not None
+    except Exception:
+        return False
 
 
 def save_user(firstname, lastname, email, password, login, address):
@@ -43,13 +47,15 @@ def save_user(firstname, lastname, email, password, login, address):
 
 def verify_user(login, password):
     password = password.encode()
-    hashed = db.hget(f'user:{login}', 'password')
-    if not hashed:
+    try:
+        hashed = db.hget(f'user:{login}', 'password')
+        if not hashed:
+            return False
+        return checkpw(password, hashed)
+    except Exception:
         return False
-    return checkpw(password, hashed)
 
 
-# FRONTEND
 @app.route('/')
 def render_main():
     return render_template("index.html")
@@ -65,7 +71,6 @@ def render_sign_in():
     return render_template("login.html")
 
 
-# BACKEND
 @app.route('/check/<username>', methods=['GET'])
 def check_available(username):
     if not check_username_available(username):
@@ -112,7 +117,7 @@ def sign_in():
     return res
 
 
-@app.route('/sender/logout')
+@app.route('/sender/logout', methods=['GET'])
 def log_out():
     session.clear()
     res = make_response("", 301)
@@ -153,17 +158,14 @@ def get_parcels():
                 return make_response("Oops, something went really, really wrong.", 500)
 
         else:
-            print("GET")
-            user_parcels = db.hgetall(f"user:{session['login']}:parcel")
-            print(user_parcels)
-            decoded_parcels = []
-            for parcel in user_parcels:
-                print(parcel)
-                print(user_parcels[parcel])
-                decoded_parcels.append(json.loads( user_parcels[parcel].decode("UTF-8") ))
-            print("+++parcels+++")
-            print(decoded_parcels)
-            return render_template("dashboard.html", parcels=decoded_parcels)
+            try:
+                user_parcels = db.hgetall(f"user:{session['login']}:parcel")
+                decoded_parcels = []
+                for parcel in user_parcels:
+                    decoded_parcels.append(json.loads(user_parcels[parcel].decode("UTF-8")))
+                return render_template("dashboard.html", parcels=decoded_parcels)
+            except Exception:
+                return make_response("Oops, did not find page 'Dashboard' :O", 500)
     else:
         flash("You have no access to this site")
         return redirect("/")
@@ -180,4 +182,4 @@ def favicon():
 if __name__ == '__main__':
 
     app.debug = True
-    app.run()
+    app.run(ssl_context='adhoc')
