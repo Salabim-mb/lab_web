@@ -1,9 +1,12 @@
 import os
 from datetime import datetime
-from flask import Flask, render_template, send_from_directory, session, request, make_response, jsonify
+from flask import Flask, render_template, send_from_directory, session, request, make_response, jsonify, flash, url_for, \
+    redirect
 from dotenv import load_dotenv
+import uuid
 from flask_session import Session
 from redis import StrictRedis
+import json
 from bcrypt import checkpw, hashpw, gensalt
 
 load_dotenv()
@@ -126,13 +129,45 @@ def log_out():
     return res
 
 
-@app.route('/sender/dashboard/<username>', methods=["GET"])
+@app.route('/sender/dashboard/', methods=["GET", "POST", "DELETE"])
 def get_parcels(username):
-    user_parcels = db.hgetall(f"user:{username}", "parcel")
-    return jsonify(parcels=user_parcels)
+    if request.method == 'DELETE':
+        parcel_id = request.headers["Parcel"]
+        try:
+            db.hdel(f"user:{session['login']}:parcel", f"parcel_{parcel_id}")
+            return make_response("", 200)
+        except Exception:
+            return make_response("Oops, no package found!", 400)
 
+    elif request.method == 'POST':
+        user_post = request.get_json()
+        size = user_post['size']
+        receiver = user_post['receiver']
+        custom_label = user_post['customLabel']
+        if None in [size, receiver, custom_label] or "" in [size, receiver, custom_label]:
+            return make_response("Missing some arguments :(", 400)
+        parcel_id = uuid.uuid4()
+        parcel = {
+            'size': size,
+            'receiver': receiver,
+            'custom_label': custom_label,
+            'id': parcel_id
+        }
+        try:
+            db.hset(f"user:{session['login']}:parcel", f"parcel_{parcel_id}", json.dumps(parcel))
+            return make_response("", 200)
+        except Exception:
+            return make_response("Oops, something went really, really wrong.", 500)
 
-#@app.route('/sender/dashoard/<username>', methods=["POST"])
+    else:
+        if session["Login"] is not None:
+
+            user_parcels = db.hgetall(f"user:{username}:parcel")
+            user_parcels = [json.loads(parcel) for parcel in user_parcels]
+            return render_template("dashboard.html", parcels=user_parcels)
+        else:
+            flash("You have no access to this site")
+            return redirect("/")
 
 
 @app.route('/favicon.ico')

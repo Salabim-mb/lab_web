@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ session['login'] }}</title>
-</head>
-<body>
+{% extends 'main.html' %}
 
-</body>
-</html>
+{% block headcontent %}
+    <link rel="stylesheet" href="../static/styles/dashboard.css" />
+    <script src="../static/resources/dashboard.js"></script>
+{% endblock %}
+
+{% block pagecontent %}
+
+{% endblock %}
