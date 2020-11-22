@@ -50,6 +50,7 @@ def verify_user(login, password):
 # FRONTEND
 @app.route('/')
 def render_main():
+    print(session)
     return render_template("index.html")
 
 
@@ -110,15 +111,16 @@ def sign_in():
         return make_response('Invalid credentials', 400)
     session["login"] = login
     session["last_login"] = datetime.now()
+    print(session)
     res = make_response("", 301)
     res.headers['Location'] = "/sender/dashboard"
     return res
 
 
-@app.route('/sender/logout', methods=["GET"])
+@app.route('/sender/logout')
 def log_out():
     session.clear()
-
+    print(session)
     res = make_response("", 301)
     res.headers['Location'] = "/"
     return res
