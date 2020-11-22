@@ -1,7 +1,7 @@
-FROM pyton:3
+FROM python:3
 WORKDIR /app
-ADD app/app.py .
+ADD app.py .
 ADD requirements.txt .
 RUN python -m pip install -r requirements.txt
 
-CMD["python", "app/app.py"]
+CMD ["python", "app.py"]

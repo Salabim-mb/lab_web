@@ -1,26 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="../static/styles/global.css" />
-        <link rel="stylesheet" href="../static/styles/main.css" />
-        <script src="../static/resources/main.js"></script>
-        <title>Parcel Express</title>
-    </head>
-    <body>
-        <header id="navbar" class="on_top">
-            <div id="company">
-                <p>
-                    <img id="company-logo" src="../static/assets/rocket-outline.svg" alt="Parcel Express" />
-                    <span id="company-name">
-                        Parcel Express
-                    </span>
-                </p>
-            </div>
-            <a class="active" href="/">Home</a>
-            <a href="/sender/register">Register</a>
-        </header>
-        <div class="parallax__bg top">
+{% extends 'main.html' %}
+
+{% block headcontent %}
+    <link rel="stylesheet" href="../static/styles/main.css" />
+    <script src="../static/resources/main.js"></script>
+{% endblock %}
+
+{% block pagecontent %}
+    <div class="parallax__bg top">
             <div class="caption">
                 <a href="/sender/register" class="caption__text">REGISTER NOW</a>
             </div>
@@ -92,13 +78,4 @@
                 <hr />
             </div>
         </div>
-        <footer>
-            <span id="github">
-                GitHub: <a href="github.com/Salabim-mb/lab_web">Click!</a>
-            </span>
-            <span id="sign">
-                Created by Michał Balas, 299233 during pandemic 2020 :(
-            </span>
-        </footer>
-    </body>
-</html>
+{% endblock %}

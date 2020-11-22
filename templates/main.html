@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block headcontent %}{% endblock %}
+    <link rel="stylesheet" href="../static/styles/global.css" />
+    <script src="../static/resources/global.js"></script>
+    <script src="../static/resources/proto.js"></script>
+    <title>Parcel Express</title>
+</head>
+<body>
+    <header id="navbar" class="on_top">
+        <div id="company">
+            <p>
+                <img id="company-logo" src="../static/assets/rocket-outline.svg" alt="Parcel Express" />
+                <span id="company-name">
+                    Parcel Express
+                </span>
+            </p>
+        </div>
+        <a href="/">Home</a>
+        {% if session["login"] %}
+            <a href="/sender/dashboard">Dashboard</a>
+            <a href="/sender/logout">Log out</a>
+        {% else %}
+            <a href="/sender/register">Register</a>
+            <a href="/sender/login">Log in</a>
+        {% endif %}
+    </header>
+    {% block pagecontent %}{% endblock %}
+    <footer>
+        <span id="github">
+            GitHub: <a href="https://github.com/Salabim-mb/lab_web">Click!</a>
+        </span>
+        <span id="sign">
+            Created by Michał Balas, 299233 during pandemic 2020 :(
+        </span>
+    </footer>
+</body>
+</html>

@@ -42,3 +42,13 @@ HTMLElement.prototype.renderAlert = function (variant, text) {
     document.getElementsByTagName("body")[0].appendChild(alertWrapper);
     setTimeout(() => hideAlert(), 3000);
 }
+
+HTMLFormElement.prototype.extractValues = function() {
+    let inputList = this.querySelectorAll("input");
+    let data = {}
+    inputList.forEach((field) => {
+        data = {...data, [field.name]: field.value}
+    });
+
+    return data;
+};

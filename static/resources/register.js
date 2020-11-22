@@ -7,7 +7,7 @@ window.onload = () => {
 }
 
 let postRegister = async (data) => {
-    let url = `${BACKEND_PATH}sender/register`;
+    let url = `/sender/register`;
 
     const res = await fetch(url, {
         method: "POST",
@@ -41,7 +41,7 @@ const handleLoginChange = async(loginField) => {
 };
 
 const checkLoginAvailable = async(login) => {
-    let url = `${BACKEND_PATH}check/${login}`;
+    let url = `/check/${login}`;
     const res = await fetch(url, {
         method: "GET",
     });
