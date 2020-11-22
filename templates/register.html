@@ -1,28 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="../static/styles/global.css" />
+{% extends 'main.html' %}
+
+{% block headcontent %}
     <link rel="stylesheet" href="../static/styles/register.css" />
     <script src="../static/resources/register.js"></script>
-    <script src="../static/resources/global.js"></script>
-    <script src="../static/resources/proto.js"></script>
-    <title>Parcel express</title>
-</head>
-<body>
-    <header id="navbar" class="on_top">
-        <div id="company">
-            <p>
-                <img id="company-logo" src="../static/assets/rocket-outline.svg" alt="Parcel Express" />
-                <span id="company-name">
-                    Parcel Express
-                </span>
-            </p>
-        </div>
-        <a href="/">Home</a>
-        <a class="active" href="/sender/register">Register</a>
-        <a href="/sender/login">Log in</a>
-    </header>
+{% endblock %}
+
+{% block pagecontent %}
     <section id="card">
         <div id="card-header">
             <span class="dot">
@@ -120,13 +103,4 @@
             <button type="submit" id="submit-btn">Register</button>
         </form>
     </section>
-    <footer>
-            <span id="github">
-                GitHub: <a href="https://github.com/Salabim-mb/lab_web">Click!</a>
-            </span>
-            <span id="sign">
-                Created by Michał Balas, 299233 during pandemic 2020 :(
-            </span>
-        </footer>
-</body>
-</html>
+{% endblock %}

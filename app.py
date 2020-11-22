@@ -9,18 +9,15 @@ from bcrypt import checkpw, hashpw, gensalt
 load_dotenv()
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PASS = os.getenv("REDIS_PASS")
-db = StrictRedis(REDIS_HOST, db=7, password=REDIS_PASS)
+db = StrictRedis(REDIS_HOST, db=21, password=REDIS_PASS)
 
 SESSION_TYPE = "redis"
 SESSION_REDIS = db
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="/static")
 app.config.from_object(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 sess = Session(app)
 salt = gensalt(12)
-
-
-app = Flask(__name__, static_url_path="/static")
 
 
 def check_username_available(login):
@@ -66,7 +63,7 @@ def render_sign_in():
     return render_template("login.html")
 
 
-@app.route('/dashboard', methods=['GET'])
+@app.route('/sender/dashboard', methods=['GET'])
 def render_dashboard():
     return render_template("dashboard.html")
 
@@ -107,21 +104,14 @@ def sign_up():
 
 @app.route('/sender/login', methods=['POST'])
 def sign_in():
-    print("dupa1")
     login = request.form.get('login')
     password = request.form.get('password')
-    print("dupa2")
     if None in [login, password] or verify_user(login, password) is False:
         return make_response('Invalid credentials', 400)
-    print("dupa")
-    print(session)
-    print(app.config)
     session["login"] = login
     session["last_login"] = datetime.now()
-    print(session)
     res = make_response("", 301)
     res.headers['Location'] = "/sender/dashboard"
-    print("dupa3")
     return res
 
 
