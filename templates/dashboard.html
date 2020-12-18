@@ -67,6 +67,7 @@
                         <th colspan="2">Label:</th>
                         <th>Receiver:</th>
                         <th>Parcel size:</th>
+                        <th>Status:</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -76,6 +77,7 @@
                             <td colspan="2">{{ parcel.custom_label }}</td>
                             <td>{{ parcel.receiver }}</td>
                             <td>{{ parcel.size }}</td>
+                            <td>{{ parcel.status }}</td>
                             <td id="delete-btn"><span>&times;</span></td>
                         </tr>
                     {% endfor %}

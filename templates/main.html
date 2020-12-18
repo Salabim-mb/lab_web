@@ -19,7 +19,7 @@
             </p>
         </div>
         <a href="/">Home</a>
-        {% if session["login"] %}
+        {% if authorized %}
             <a href="/sender/dashboard">Dashboard</a>
             <a href="/sender/logout">Log out</a>
         {% else %}

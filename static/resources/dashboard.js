@@ -18,25 +18,27 @@ const deleteEntry = async(event, element) => {
         await performDeletion(id)
         window.location.reload(true);
     } catch(e) {
-        element.renderAlert("danger", e);
+        element.renderAlert("danger", e.message);
     }
 }
 
 const handleSubmit = async (event, form) => {
     event.preventDefault();
+    const token = document.cookie.replace("token=", '');
     try {
-        await addParcel(form);
+        await addParcel(getFormValues(form), token);
         window.location.reload(true);
     } catch(e) {
         event.preventDefault();
-        form.renderAlert("danger", e)
+        form.renderAlert("danger", e.message)
     }
 }
 
-const addParcel = async (data) => {
+const addParcel = async (data, token) => {
     const res = await fetch(url, {
         method: "POST",
-        body: new FormData(data),
+        body: JSON.stringify(data),
+        headers: getCORSHeaders(token)
     });
 
     if (res.status === 200) {
@@ -46,10 +48,11 @@ const addParcel = async (data) => {
     }
 }
 
-const performDeletion = async(id) => {
+const performDeletion = async(id, token) => {
     const res = await fetch(url, {
         method: "DELETE",
         headers: {
+            ...getCORSHeaders(token),
             "Parcel": id
         }
     });

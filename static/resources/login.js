@@ -6,23 +6,24 @@ window.onload = () => {
 const handleSubmit = async (event, form) => {
     event.preventDefault();
     try {
-        await performLogin(form);
+        let {token} = await performLogin( getFormValues(form) );
+        document.cookie = 'token=' + token;
         window.location.pathname = "/sender/dashboard";
     } catch(e) {
-        form.renderAlert("danger", e);
+        form.renderAlert("danger", e.message);
     }
 };
 
 const performLogin = async (data) => {
     let res = await fetch("/sender/login", {
         method: "POST",
-        body: new FormData(data),
-        redirect: "follow"
+        body: JSON.stringify(data),
+        headers: getCORSHeaders()
     });
 
     if (res.status === 200 || res.status === 301) {
-        return await res.text();
+        return await res.json();
     } else {
-        throw await res.text();
+        throw await res.json();
     }
 };

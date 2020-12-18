@@ -11,14 +11,14 @@ let postRegister = async (data) => {
 
     const res = await fetch(url, {
         method: "POST",
-        body: new FormData(data)
+        body: JSON.stringify(data),
+        headers: getCORSHeaders()
     });
-    let answer = Promise.resolve(res);
 
-    if (res.status === 200 || res.status === 201) {
-        return answer;
+    if (res.status === 201) {
+        return await res.json();
     }  else {
-        throw {...res, errorDoc: answer};
+        throw {...res, body: await res.json()};
     }
 }
 
@@ -71,14 +71,15 @@ const handleSubmit = async (event, data) => {
     if (checkPasswords(data.querySelectorAll('input[type="password"]'))) {
         toggleElementDisabled(submitBtn, "Loading...");
         try {
-            await postRegister(data);
+            const values = getFormValues(data);
+            await postRegister(values);
             alert("You've been successfully registered!");
             window.location.pathname = "/";
         } catch(e) {
             if (e.status === 500) {
                 document.dispatchEvent(new CustomEvent("failedServerConnection"));
             } else {
-                handleFailedRequest(data, e.errorDoc)
+                handleFailedRequest(e.body)
             }
         } finally {
             toggleElementDisabled(submitBtn, origText);
@@ -91,14 +92,10 @@ const handleSubmit = async (event, data) => {
     }
 }
 
-const handleFailedRequest = (formElement, errorDoc) => {
-    const list = errorDoc.querySelectorAll("li") || [];
-    let text = "";
-    list.forEach((item) => {
-        text += item.innerText + "\n"
-    });
+const handleFailedRequest = (errorData) => {
+    let text = errorData.message;
 
-    formElement.renderAlert("danger", text);
+    document.renderAlert("danger", text);
 }
 
 const checkPasswords = (passwordFields) => {
