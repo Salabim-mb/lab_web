@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="../static/styles/global.css" />
     <script src="../static/resources/global.js"></script>
     <script src="../static/resources/proto.js"></script>
+    <script defer src="../static/resources/main.js"></script>
     <title>Parcel Express</title>
 </head>
 <body>
@@ -19,9 +20,9 @@
             </p>
         </div>
         <a href="/">Home</a>
-        {% if authorized %}
+        {% if user %}
             <a href="/sender/dashboard">Dashboard</a>
-            <a href="/sender/logout">Log out</a>
+            <a id="logout-btn">Log out</a>
         {% else %}
             <a href="/sender/register">Register</a>
             <a href="/sender/login">Log in</a>

@@ -1,10 +1,9 @@
 import os
 from datetime import datetime, timedelta
-from flask import Flask, render_template, send_from_directory, session, request, make_response, jsonify, flash, url_for, \
+from flask import Flask, render_template, send_from_directory, request, make_response, jsonify, flash, url_for, \
     redirect, g
 from dotenv import load_dotenv
 import uuid
-from flask_session import Session
 from redis import StrictRedis
 import json
 from bcrypt import checkpw, hashpw, gensalt
@@ -57,16 +56,20 @@ def decode_jwt_token(token):
         return {}
 
 
-def check_auth(current_request):
+@app.before_request
+def check_auth():
     try:
-        token = current_request.headers.get('Authorization').replace('Token ', '')
-    except Exception:
-        token = current_request.cookies['token']
-    decoded = decode_jwt_token(token)
-    if decoded != {}:
-        return decoded
-    else:
-        return {}
+        try:
+            token = request.headers.get('Authorization').replace('Token ', '')
+        except Exception:
+            token = request.cookies['token']
+        decoded = decode_jwt_token(token)
+        if decoded != {}:
+            g.user = decoded
+        else:
+            g.user = {}
+    except Exception as e:
+        g.user = {}
 
 
 def check_username_available(login):
@@ -109,26 +112,46 @@ def verify_user(login, password):
 
 
 # API #
-@app.route('/courier/packages')
+@app.route("/courier/parcel-status/<parcel_id>", methods=["PUT"])
+def update_parcel_status(parcel_id):
+    print(parcel_id)
+
+
+@app.route("/courier/register", methods=["POST"])
+def register_courier():
+    print("cześć")
+
+
+@app.route("/courier/login", methods=["POST"])
+def login_courier():
+    print("cześć")
+
+
+@app.route('/courier/packages', methods=["GET"])
 def get_package_list():
     if g.user is None:
         print("cześć")
+
+
+@app.route('/courier/logout', methods=["GET"])
+def log_courier_out():
+    print("cześć")
 ###
 
 
 @app.route('/')
 def render_main():
-    return render_template("index.html")
+    return render_template("index.html", user=g.user)
 
 
 @app.route('/sender/register', methods=['GET'])
 def render_sign_up():
-    return render_template("register.html")
+    return render_template("register.html", user=g.user)
 
 
 @app.route('/sender/login', methods=['GET'])
 def render_sign_in():
-    return render_template("login.html")
+    return render_template("login.html", user=g.user)
 
 
 @app.route('/check/<username>', methods=['GET'])
@@ -202,7 +225,6 @@ def sign_in():
 
 @app.route('/sender/logout', methods=['GET'])
 def log_out():
-    g.user = check_auth(request)
     if g.user is not {}:
         res = make_response(jsonify({
             'status': 'success',
@@ -220,7 +242,6 @@ def log_out():
 
 @app.route('/sender/dashboard', methods=["GET", "POST", "DELETE"])
 def manage_parcels():
-    g.user = check_auth(request)
     if g.user is not {}:
         login = g.user['login']
         if request.method == 'DELETE':
@@ -266,7 +287,7 @@ def manage_parcels():
                 decoded_parcels = []
                 for parcel in user_parcels:
                     decoded_parcels.append(json.loads(user_parcels[parcel].decode("UTF-8")))
-                return render_template("dashboard.html", parcels=decoded_parcels)
+                return render_template("dashboard.html", parcels=decoded_parcels, user=g.user)
             except Exception:
                 return make_response(jsonify({
                     "status": "fail",
