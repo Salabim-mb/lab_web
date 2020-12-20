@@ -151,15 +151,15 @@ def update_parcel_status(parcel_id):
             if request.method == 'OPTIONS':
                 return send_allowed(['PUT'])
             else:
-                parent_link = Link('parcel:parent', '/courier/parcels')
+                parent_link = [Link('parcel:parent', '/courier/parcels')]
                 data = request.get_json()
                 sender_login = data['sender']
-                user_entry = db.lpop(f"user:{sender_login}:parcel")
-                current_parcel = user_entry[f"parcel_{parcel_id}".encode()]
+                current_parcel = db.hget(f"user:{sender_login}:parcel", f"parcel_{parcel_id}")
                 if current_parcel is not None:
-                    current_parcel = current_parcel.decode()
+                    db.hdel(f"user:{sender_login}:parcel", f"parcel_{parcel_id}")
+                    current_parcel = json.loads(current_parcel.decode())
                     current_parcel['status'] = data['status']
-                    db.lpush(f"user:{sender_login}:parcel", f"parcel_{parcel_id}", json.dumps(current_parcel))
+                    db.hset(f"user:{sender_login}:parcel", f"parcel_{parcel_id}", json.dumps(current_parcel))
                     return make_response(Document(data={
                         'status': 'success',
                         'message': 'Parcel updated successfully'

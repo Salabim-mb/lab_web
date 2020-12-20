@@ -78,7 +78,11 @@
                             <td>{{ parcel.receiver }}</td>
                             <td>{{ parcel.size }}</td>
                             <td>{{ parcel.status }}</td>
-                            <td id="delete-btn"><span>&times;</span></td>
+                            {% if parcel.status == 'Not assigned' %}
+                                <td id="delete-btn"><span>&times;</span></td>
+                            {% else %}
+                                <td></td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 </tbody>
