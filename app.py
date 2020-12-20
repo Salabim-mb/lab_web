@@ -85,7 +85,7 @@ def check_auth():
 @app.after_request
 def apply_cors_enabled(response):
     response.headers['Access-Control-Allow-Origin'] = "*"
-    response.headers['Content-Type'] = "application/json"
+    # response.headers['Content-Type'] = "application/json"
     return response
 
 
