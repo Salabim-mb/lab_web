@@ -25,6 +25,8 @@ SESSION_TYPE = "redis"
 SESSION_REDIS = db
 app = Flask(__name__, static_url_path="/static")
 app.config.from_object(__name__)
+app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['CORS_ORIGINS'] = "*"
 app.secret_key = os.getenv("SECRET_KEY")
 # sess = Session(app)
 salt = gensalt(12)
@@ -139,6 +141,7 @@ def verify_user(login, password, role='user'):
 
 # API #
 @app.route("/courier/parcel/<parcel_id>", methods=["PUT", "OPTIONS"])
+
 def update_parcel_status(parcel_id):
     try:
         if g.user is not {} and g.user['role'] == 'courier':
