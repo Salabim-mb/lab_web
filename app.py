@@ -9,7 +9,7 @@ import json
 from bcrypt import checkpw, hashpw, gensalt
 from flask_hal import HAL
 from flask_hal.link import Link
-from flask_hal.document import Document, Embedded
+from flask_hal.document import Document
 import jwt
 
 
@@ -30,14 +30,13 @@ app.secret_key = os.getenv("SECRET_KEY")
 salt = gensalt(12)
 HAL(app)
 
-# url_whitelist = ['https://parcelexpress.herokuapp.com', 'http://localhost:3000', 'https://localhost:5000']
-
 
 def send_allowed(methods):
     if 'OPTIONS' not in methods:
         methods.append("OPTIONS")
     response = make_response(Document().to_json(), 204)
     response.headers['Allow'] = ', '.join(methods)
+
     return response
 
 
@@ -77,6 +76,12 @@ def check_auth():
             g.user = {}  # token parsed, but not recognized
     except Exception as e:  # not logged in
         g.user = {}
+
+
+@app.after_request
+def apply_cors_enabled(response):
+    response.headers['Access-Control-Allow-Origin'] = "*"
+    return response
 
 
 def check_username_available(login, role='user'):
