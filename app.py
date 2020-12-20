@@ -7,6 +7,7 @@ import uuid
 from redis import StrictRedis
 import json
 from bcrypt import checkpw, hashpw, gensalt
+from flask_cors import CORS, cross_origin
 from flask_hal import HAL
 from flask_hal.link import Link
 from flask_hal.document import Document
@@ -30,6 +31,7 @@ app.config['CORS_ORIGINS'] = "*"
 app.secret_key = os.getenv("SECRET_KEY")
 # sess = Session(app)
 salt = gensalt(12)
+CORS(app)
 HAL(app)
 
 
@@ -83,6 +85,7 @@ def check_auth():
 @app.after_request
 def apply_cors_enabled(response):
     response.headers['Access-Control-Allow-Origin'] = "*"
+    response.headers['Content-Type'] = "application/json"
     return response
 
 
@@ -141,7 +144,7 @@ def verify_user(login, password, role='user'):
 
 # API #
 @app.route("/courier/parcel/<parcel_id>", methods=["PUT", "OPTIONS"])
-
+@cross_origin()
 def update_parcel_status(parcel_id):
     try:
         if g.user is not {} and g.user['role'] == 'courier':
@@ -180,6 +183,7 @@ def update_parcel_status(parcel_id):
 
 
 @app.route("/courier/register", methods=["POST", "OPTIONS"])
+@cross_origin()
 def register_courier():
     if request.method == 'OPTIONS':
         return send_allowed(['POST'])
@@ -214,6 +218,7 @@ def register_courier():
 
 
 @app.route("/courier/login", methods=["POST", "OPTIONS"])
+@cross_origin()
 def login_courier():
     if request.method == 'OPTIONS':
         return send_allowed(['POST'])
@@ -243,6 +248,7 @@ def login_courier():
 
 
 @app.route('/courier/parcels', methods=["GET", "OPTIONS"])
+@cross_origin()
 def get_package_list():
     try:
         if g.user is not {} and g.user['role'] == 'courier':
@@ -280,6 +286,7 @@ def get_package_list():
 
 
 @app.route('/courier/logout', methods=["GET", "OPTIONS"])
+@cross_origin()
 def log_courier_out():
     if request.method == 'OPTIONS':
         return send_allowed(['GET'])
