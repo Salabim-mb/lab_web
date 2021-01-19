@@ -1,5 +1,6 @@
 import os, re
 from datetime import datetime, timedelta
+import requests
 from flask import Flask, render_template, send_from_directory, request, make_response, jsonify, flash, url_for, \
     redirect, g
 from dotenv import load_dotenv
@@ -12,6 +13,9 @@ from flask_hal import HAL
 from flask_hal.link import Link
 from flask_hal.document import Document
 import jwt
+from functools import wraps
+from authlib.integrations.flask_client import OAuth
+from six.moves.urllib.parse import urlencode
 
 
 load_dotenv()
@@ -26,13 +30,29 @@ SESSION_TYPE = "redis"
 SESSION_REDIS = db
 app = Flask(__name__, static_url_path="/static")
 app.config.from_object(__name__)
-app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['CORS_ALLOW_HEADERS'] = "*"
 app.config['CORS_ORIGINS'] = "*"
 app.secret_key = os.getenv("SECRET_KEY")
 # sess = Session(app)
 salt = gensalt(12)
 CORS(app)
 HAL(app)
+
+oauth = OAuth(app)
+OAUTH_URI = os.getenv("OAUTH_URI")
+OAUTH_CLIENT_ID = os.getenv("OAUTH_CLIENT_ID")
+
+auth0 = oauth.register(
+    'Parcel Express Oauth',
+    client_id=OAUTH_CLIENT_ID,
+    client_secret=os.getenv("OAUTH_CLIENT_SECRET"),
+    api_base_url=OAUTH_URI,
+    access_token_url=f'{OAUTH_URI}/oauth/token',
+    authorize_url=f'{OAUTH_URI}/authorize',
+    client_kwargs={
+        'scope': 'openid profile email',
+    },
+)
 
 
 def send_allowed(methods):
@@ -44,7 +64,7 @@ def send_allowed(methods):
     return response
 
 
-def get_jwt_payload(login, role):
+def get_jwt_payload(login, role='sender'):
     try:
         return jwt.encode({
             'login': login,
@@ -385,11 +405,30 @@ def sign_in():
                 'data': data
             }).to_json(), 400)
         encoded_jwt = get_jwt_payload(login, 'sender')
-        return make_response(Document(data={
+        res = make_response(Document(data={
             'status': 'success',
             'message': 'Logged in sucessfully!',
             'token': encoded_jwt.decode()
         }).to_json(), 200)
+        res.set_cookie('token', encoded_jwt.decode(), secure=True, httponly=True)
+        return res
+
+
+@app.route('/login/oauth')
+def oauth_login():
+    return auth0.authorize_redirect(redirect_uri="https://localhost:5000/login/oauth/callback")
+
+
+@app.route("/login/oauth/callback")
+def callback_handling():
+    auth0.authorize_access_token()
+    userinfo = auth0.get('userinfo').json()
+    response = make_response('', 301)
+    jwt_local = get_jwt_payload(userinfo['nickname'])
+    response.set_cookie('token', jwt_local, secure=True, httponly=True, path='/')
+    response.set_cookie('oauth', str(True), secure=True, httponly=True, path='/')
+    response.headers['Location'] = "/sender/dashboard"
+    return response
 
 
 @app.route('/sender/logout', methods=['GET', "OPTIONS"])
@@ -397,19 +436,33 @@ def log_out():
     if request.method == "OPTIONS":
         return send_allowed(['GET'])
     else:
-        if g.user is not {}:
-            res = make_response(Document(data={
-                'status': 'success',
-                'message': 'Logged out successfully'
-            }).to_json(), 301)
-            res.headers['Location'] = "/"
+        if "oauth" in request.cookies:
+            res = make_response(jsonify({
+                'oauth_logout': f'{OAUTH_URI}/v2/logout?' +
+                                f'client_id={OAUTH_CLIENT_ID}&' +
+                                f'returnTo={url_for("go_home", _external=True)}'
+            }), 303)
+            return res
         else:
-            res = make_response(Document(data={
-                'status': 'success?',
-                'message': 'You don\'t exist already lol'
-            }).to_json(), 301)
-            res.headers['Location'] = "/"
-        return res
+            if g.user is not {}:
+                res = make_response(Document(data={
+                    'status': 'success',
+                    'message': 'Logged out successfully'
+                }).to_json(), 301)
+                res.headers['Location'] = "/"
+            else:
+                res = make_response(Document(data={
+                    'status': 'success?',
+                    'message': 'You don\'t exist already lol'
+                }).to_json(), 301)
+                res.headers['Location'] = "/"
+                res.delete_cookie('token', path="/")
+            return res
+
+
+@app.route('/logout/oauth/aftermath')
+def go_home():
+    return redirect("/")
 
 
 @app.route('/sender/dashboard', methods=["GET", "POST", "DELETE", "OPTIONS"])

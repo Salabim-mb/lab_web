@@ -60,7 +60,7 @@ body {
     justify-content: center;
 }
 
-#submit-btn {
+#submit-btn, #login-oauth-btn {
     display: block;
     width: 100%;
     background-color: aqua;
@@ -70,6 +70,10 @@ body {
     font-family: inherit;
     font-size: 17px;
     padding: 5px 10px;
+}
+
+#login-option-divider {
+    color: white;
 }
 
 @media (max-width: 768px) {

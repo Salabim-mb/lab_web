@@ -9,3 +9,7 @@ cryptography==3.2.1
 flask_hal
 flask_cors
 PyJWT
+requests
+authlib
+six
+flask_socketio

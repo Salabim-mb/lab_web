@@ -1,7 +1,7 @@
 {% extends 'main.html' %}
 
 {% block headcontent %}
-    <link rel="stylesheet" href="../static/styles/register.css" />
+    <link rel="stylesheet" href="../static/styles/register.css"/>
     <script src="../static/resources/login.js"></script>
 {% endblock %}
 
@@ -9,36 +9,42 @@
     <section id="card">
         <div id="card-header">
             <span class="dot">
-                <img src="../static/assets/lock-open-plus-outline.svg" alt="Register" />
+                <img src="../static/assets/lock-open-plus-outline.svg" alt="Register"/>
             </span>
             <span id="card-title">SIGN IN</span>
         </div>
-        <form id="loginform">
-            <div id="card-body">
-                <p id="input-" class="input__container">
-                    <label for="username">Username:</label>
-                    <input
-                            id="username"
-                            type="text"
-                            class="input__box"
-                            name="login"
-                            required
-                            placeholder="Your username"
-                    />
-                </p>
-                <p id="input-" class="input__container">
-                    <label for="password">Password:</label>
-                    <input
-                            id="password"
-                            type="password"
-                            class="input__box"
-                            name="password"
-                            required
-                            placeholder="Your password here"
-                    />
-                </p>
-            </div>
-            <button type="submit" id="submit-btn">Login</button>
-        </form>
+        <div  id="loginform">
+            <form>
+                <div id="card-body">
+                    <p id="input-" class="input__container">
+                        <label for="username">Username:</label>
+                        <input
+                                id="username"
+                                type="text"
+                                class="input__box"
+                                name="login"
+                                required
+                                placeholder="Your username"
+                        />
+                    </p>
+                    <p id="input-" class="input__container">
+                        <label for="password">Password:</label>
+                        <input
+                                id="password"
+                                type="password"
+                                class="input__box"
+                                name="password"
+                                required
+                                placeholder="Your password here"
+                        />
+                    </p>
+                </div>
+                <button type="submit" id="submit-btn">Login</button>
+            </form>
+            <hr/>
+            <div id="login-option-divider">OR</div>
+            <hr/>
+            <button id="login-oauth-btn">Authorize with Auth0</button>
+        </div>
     </section>
 {% endblock %}
