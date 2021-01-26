@@ -1,3 +1,15 @@
+// var socket;
+//
+// document.addEventListener("DOMContentLoaded", (event) => {
+//     socket = io("http://localhost:8080/", {
+//         transport: 'websocket'
+//     });
+//     socket.on('connect', () => {
+//         console.log("henlo")
+//     })
+// });
+
+
 try {
     document.getElementById("logout-btn").onclick = async (e) => {
         e.preventDefault();
@@ -11,6 +23,7 @@ try {
             let {oauth_logout} = await res.json();
             await logoutOauth(oauth_logout)
         }
+        document.cookie = ""
         window.location.pathname = "/"
     }
 } catch(e) {}

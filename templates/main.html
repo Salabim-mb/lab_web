@@ -7,6 +7,8 @@
     <script src="../static/resources/global.js"></script>
     <script src="../static/resources/proto.js"></script>
     <script defer src="../static/resources/main.js"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.0/socket.io.min.js"></script>
     <title>Parcel Express</title>
 </head>
 <body>
@@ -28,10 +30,10 @@
             <a href="/sender/login">Log in</a>
         {% endif %}
     </header>
-    {% block pagecontent %}{% endblock %}
-    <div class="notification-wrapper" hidden>
+    <div id="notification-wrapper" hidden>
 
     </div>
+    {% block pagecontent %}{% endblock %}
     <footer>
         <span id="github">
             GitHub: <a href="https://github.com/Salabim-mb/lab_web">Click!</a>

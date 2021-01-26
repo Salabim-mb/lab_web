@@ -15,7 +15,6 @@ body {
 
 #navbar a.active {
     color: aqua;
-
 }
 
 #company-logo  {
@@ -106,6 +105,7 @@ footer span > a {
     color: white;
     margin: 0 25%;
     width: 50%;
+    top: 100px;
     position: absolute;
     border-radius: 5px;
     transition: 0.3s ease-in-out;
@@ -125,3 +125,15 @@ footer span > a {
 .close__btn:hover {
   color: black;
 }
+
+/*.notification {*/
+/*    position: absolute;*/
+/*    background: darkgrey;*/
+/*    max-width: 300px;*/
+/*    bottom: 5%;*/
+/*}*/
+
+/*.notification > p {*/
+/*    margin: 0 0;*/
+/*    text-align: center;*/
+/*}*/

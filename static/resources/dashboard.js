@@ -9,6 +9,7 @@ window.onload = () => {
             "click", async (e) => deleteEntry(e, el.parentElement)
         );
     });
+    handleNotifications();
 }
 
 const deleteEntry = async(event, element) => {
@@ -27,12 +28,33 @@ const handleSubmit = async (event, form) => {
     const token = document.cookie.replace("token=", '');
     try {
         await addParcel(getFormValues(form), token);
+        await pushMessage(token);
         window.location.reload(true);
     } catch(e) {
+        console.log(e)
         event.preventDefault();
         form.renderAlert("danger", e.message)
     }
 }
+
+const pushMessage = async(token) => {
+    let notif_url = "/notifications";
+    let res = await fetch(notif_url, {
+        method: "POST",
+        headers: getCORSHeaders(token),
+        body: JSON.stringify({
+            receiver: "any_courier",
+            message: "New parcel added!",
+            date: (new Date()).toISOString()
+        })
+    })
+
+    if (res.status === 200) {
+        return await res.json();
+    } else {
+        throw await res.json();
+    }
+};
 
 const addParcel = async (data, token) => {
     const res = await fetch(url, {
@@ -58,8 +80,8 @@ const performDeletion = async(id, token) => {
     });
 
     if (res.status === 200) {
-        return await res.text();
+        return await res.json();
     } else {
-        throw await res.text();
+        throw await res.json();
     }
 };

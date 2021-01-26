@@ -12,4 +12,3 @@ PyJWT
 requests
 authlib
 six
-flask_socketio

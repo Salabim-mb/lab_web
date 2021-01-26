@@ -9,7 +9,7 @@ const getCORSHeaders = (token = null) => {
 };
 
 const getMultiHeaders = () => ({
-   "Content-Type": "multipart/form-data"
+    "Content-Type": "multipart/form-data"
 });
 
 const dispatchErrorAlert = () => {
@@ -23,4 +23,37 @@ const getFormValues = (formElement) => {
         res = {...res, [item.getAttribute("name")]: item.value}
     });
     return res;
+};
+
+const handleNotifications = () => {
+    const innerFunc = async () => {
+        const el = document.querySelector("div#notification-wrapper")
+        try {
+            const {notifications} = await fetchNotifications();
+            for (let notification of notifications) {
+                el.renderAlert("success", `${notification.sender}\n${notification.message}\ndate: ${notification.date}`)
+            }
+        } catch (e) {
+            if (e && e.message) {
+                document.querySelector("body").renderAlert("danger", e.message);
+            }
+        } finally {
+            handleNotifications();
+        }
+    };
+    innerFunc();
+}
+
+const fetchNotifications = async () => {
+    let url = "/notifications";
+    const res = await fetch(url, {
+        method: "GET",
+        headers: getCORSHeaders()
+    });
+
+    if (res.status === 200) {
+        return await res.json();
+    } else {
+        throw await res.json();
+    }
 };

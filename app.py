@@ -1,5 +1,7 @@
 import os, re
 from datetime import datetime, timedelta
+from time import sleep
+
 import requests
 from flask import Flask, render_template, send_from_directory, request, make_response, jsonify, flash, url_for, \
     redirect, g
@@ -162,6 +164,33 @@ def verify_user(login, password, role='user'):
         return False
 
 
+def get_notifications(login, role='sender'):
+    try:
+        if role == 'sender':
+            new_nots = db.hgetall(f"notification:{login}")
+        else:
+            new_nots = db.hgetall("notification:any_courier")
+        nots_array = []
+        if new_nots is not None:
+            for notification in new_nots:
+                parsed = json.loads(new_nots[notification].decode())
+                nots_array.append({
+                    'sender': parsed['sender'],
+                    'message': parsed['message'],
+                    'date': parsed['date']
+                })
+                try:
+                    if role == 'sender':
+                        db.hdel(f"notification:{login}", f"notification:{parsed['id']}")
+                    else:
+                        db.hdel(f"notification:{login}", "notification:any_courier")
+                except Exception as e:
+                    raise e
+        return nots_array
+    except Exception as e:
+        raise e
+
+
 # API #
 @app.route("/courier/parcel/<parcel_id>", methods=["PUT", "OPTIONS"])
 @cross_origin()
@@ -180,26 +209,28 @@ def update_parcel_status(parcel_id):
                     current_parcel = json.loads(current_parcel.decode())
                     current_parcel['status'] = data['status']
                     db.hset(f"user:{sender_login}:parcel", f"parcel_{parcel_id}", json.dumps(current_parcel))
-                    return make_response(Document(data={
+                    res = make_response(Document(data={
                         'status': 'success',
                         'message': 'Parcel updated successfully'
                     }, links=parent_link).to_json(), 200)
                 else:
-                    return make_response(Document(data={
+                    res = make_response(Document(data={
                         'status': 'fail',
                         'message': 'Requested package not found.'
                     }, links=parent_link).to_json(), 400)
         else:
-            return make_response(Document(data={
+            res = make_response(Document(data={
                 'status': 'fail',
                 'message': 'You\'re not allowed to view this page.'
             }).to_json(), 401)
     except Exception as e:
         print(e)
-        return make_response(Document(data={
+        res = make_response(Document(data={
             'status': 'fail',
             'message': 'You\'re not allowed to view this page.'
         }).to_json(), 401)
+    res.headers['Content-Type'] = "application/json"
+    return res
 
 
 @app.route("/courier/register", methods=["POST", "OPTIONS"])
@@ -215,26 +246,25 @@ def register_courier():
         password = data['password']
         password_rep = data['password_rep']
         login = data['login']
-
         if None in [email, company, phone, password, login]:
-            return make_response(Document(data={
+            res = make_response(Document(data={
                'status': 'fail',
                'message': 'Some arguments are missing :('
             }).to_json(), 400)
-
-        if password != password_rep:
-            return make_response(Document(data={
+        elif password != password_rep:
+            res = make_response(Document(data={
                 'status': 'fail',
                 'message': 'Passwords don\'t match :('
             }).to_json(), 400)
-
-        save_courier(login, email, company, phone, password)
-
-        correct_data = {
-            'status': 'success',
-            'message': 'Registered successfully, now please log in'
-        }
-        return make_response(Document(data=correct_data).to_json(), 201)
+        else:
+            save_courier(login, email, company, phone, password)
+            correct_data = {
+                'status': 'success',
+                'message': 'Registered successfully, now please log in'
+            }
+            res = make_response(Document(data=correct_data).to_json(), 201)
+        res.headers['Content-Type'] = "application/json"
+        return res
 
 
 @app.route("/courier/login", methods=["POST", "OPTIONS"])
@@ -248,23 +278,24 @@ def login_courier():
         password = data['password']
 
         if None in [login, password] or "" in [login, password]:
-            return make_response(Document(data={
+            res = make_response(Document(data={
                 'status': 'fail',
                 'message': 'Some arguments are missing :('
             }).to_json(), 400)
-
-        if verify_user(login, password, 'courier'):
+        elif verify_user(login, password, 'courier'):
             res_correct = {
                 'status': 'success',
                 'message': 'Logged in correctly',
                 'token': get_jwt_payload(login, 'courier').decode()
             }
-            return make_response(Document(data=res_correct).to_json(), 200)
+            res = make_response(Document(data=res_correct).to_json(), 200)
         else:
-            return make_response(Document(data={
+            res = make_response(Document(data={
                 'status': 'fail',
                 'message': 'Invalid credentials :('
             }).to_json(), 400)
+        res.headers['Content-Type'] = "application/json"
+        return res
 
 
 @app.route('/courier/parcels', methods=["GET", "OPTIONS"])
@@ -288,21 +319,23 @@ def get_package_list():
                         decoded_parcel['sender'] = sender
                         decoded_parcels.append(decoded_parcel)
                         links.append(Link(f'parcel:{decoded_parcel["id"]}', f"/courier/package/{decoded_parcel['id']}"))
-                return make_response(Document(data={
+                res = make_response(Document(data={
                     'status': 'success',
                     'parcels': decoded_parcels
                 }, links=links).to_json(), 200)
         else:
-            return make_response(Document(data={
+            res = make_response(Document(data={
                 'status': 'fail',
                 'message': 'You\'re not allowed to view this page.'
             }).to_json(), 401)
     except Exception as e:
         print(e)
-        return make_response(Document(data={
+        res = make_response(Document(data={
             'status': 'fail',
             'message': 'You\'re not allowed to view this page.'
         }).to_json(), 401)
+    res.headers['Content-Type'] = "application/json"
+    return res
 
 
 @app.route('/courier/logout', methods=["GET", "OPTIONS"])
@@ -312,17 +345,78 @@ def log_courier_out():
         return send_allowed(['GET'])
     else:
         if g.user is not {}:
-            res = {
+            response = {
                 'status': 'success',
                 'message': 'Logged out successfully'
             }
         else:
-            res = {
+            response = {
                 'status': 'success?',
                 'message': 'You don\'t exist already lol'
             }
-        return make_response(Document(data=res).to_json(), 200)
+        res = make_response(Document(data=response).to_json(), 200)
+        res.headers['Content-Type'] = "application/json"
+        return res
 ###
+
+
+@app.route("/notifications", methods=['GET', 'POST', 'OPTIONS'])
+@cross_origin()
+def manage_notifications():
+    if request.method == 'OPTIONS':
+        return send_allowed(['GET', 'POST'])
+    else:
+        if g.user != {}:
+            if request.method == 'POST':
+                data = request.get_json()
+                receiver = data['receiver']
+                message = data['message']
+                date = data['date']
+                if None in [date, receiver, message]:
+                    res = make_response(Document(data={
+                        'status': 'fail',
+                        'message': 'Message not pushed, invalid data'
+                    }).to_json(), 400)
+                else:
+                    try:
+                        msg_id = uuid.uuid4()
+                        db.hset(f"notification:{receiver}", f"notification:{msg_id}", json.dumps({
+                            'id': str(msg_id),
+                            'message': message,
+                            'date': date,
+                            'sender': g.user['login']
+                        }))
+                        res = make_response(Document(data={
+                            'status': 'success',
+                            'message': 'message pushed successfully'
+                        }).to_json(), 200)
+                    except Exception as e:
+                        print(e)
+                        res = make_response(Document(data={
+                            'status': 'fail',
+                            'message': 'Something bad happened while trying to push your message :('
+                        }).to_json(), 500)
+            else:
+                try:
+                    notifications = get_notifications(g.user['login'], g.user['role'])
+                    print(notifications)
+                    while not notifications:
+                        sleep(1)
+                        notifications = get_notifications(g.user['login'], g.user['role'])
+                    res = make_response(Document(data={"notifications": notifications}).to_json(), 200)
+                except Exception as e:
+                    print(e)
+                    res = make_response(Document(data={
+                        'status': 'fail',
+                        'message': 'Unable to get notifications. Unknown error'
+                    }).to_json(), 500)
+        else:
+            res = make_response(Document(data={
+                'status': 'fail',
+                'message': 'You have no access to receive notifications'
+            }).to_json(), 401)
+        res.headers['Content-Type'] = "application/json"
+        return res
 
 
 @app.route('/', methods=["GET", "OPTIONS"])
@@ -357,35 +451,32 @@ def sign_up():
         address = data.get("address")
 
         if None in [firstname, lastname, login, password, email, address]:
-            return make_response(Document(data={
+            res = make_response(Document(data={
                 'status': 'fail',
                 "message": 'Invalid data -- some fields are empty.'
             }).to_json(), 400)
-
-        if password != rep_password:
-            return make_response(Document(data={
+        elif password != rep_password:
+            res = make_response(Document(data={
                 'status': 'fail',
                 "message": "Passwords don't match."
             }).to_json(), 400)
-
-        if not check_username_available(login):
-            return make_response(Document(data={
+        elif not check_username_available(login):
+            res = make_response(Document(data={
                 'status': 'fail',
                 'message': 'Login taken, silly :)'
             }).to_json(), 400)
-
-        if save_user(firstname, lastname, email, password, login, address):
-            response = make_response(Document(data={
+        elif save_user(firstname, lastname, email, password, login, address):
+            res = make_response(Document(data={
                 'status': 'success',
                 'message': 'Successfully registered. Now please log in.'
             }).to_json(), 201)
         else:
-            response = make_response(Document(data={
+            res = make_response(Document(data={
                 'status': 'fail',
                 'message': 'Did not register, unknown error happened o_O'
             }).to_json(), 400)
-
-        return response
+        res.headers['Content-Type'] = "application/json"
+        return res
 
 
 @app.route('/sender/login', methods=['POST', "GET", "OPTIONS"])
@@ -399,24 +490,26 @@ def sign_in():
         login = data.get('login')
         password = data.get('password')
         if None in [login, password] or verify_user(login, password) is False:
-            return make_response(Document(data={
+            res = make_response(Document(data={
                 'status': 'fail',
                 'message': 'Invalid credentials',
                 'data': data
             }).to_json(), 400)
-        encoded_jwt = get_jwt_payload(login, 'sender')
-        res = make_response(Document(data={
-            'status': 'success',
-            'message': 'Logged in sucessfully!',
-            'token': encoded_jwt.decode()
-        }).to_json(), 200)
-        res.set_cookie('token', encoded_jwt.decode(), secure=True, httponly=True)
+        else:
+            encoded_jwt = get_jwt_payload(login, 'sender')
+            res = make_response(Document(data={
+                'status': 'success',
+                'message': 'Logged in sucessfully!',
+                'token': encoded_jwt.decode()
+            }).to_json(), 200)
+            res.set_cookie('token', encoded_jwt.decode(), secure=True, httponly=True, path="/")
+        res.headers['Content-Type'] = "application/json"
         return res
 
 
 @app.route('/login/oauth')
 def oauth_login():
-    return auth0.authorize_redirect(redirect_uri="https://localhost:5000/login/oauth/callback")
+    return auth0.authorize_redirect(redirect_uri=url_for("callback_handling", _external=True))
 
 
 @app.route("/login/oauth/callback")
@@ -442,7 +535,6 @@ def log_out():
                                 f'client_id={OAUTH_CLIENT_ID}&' +
                                 f'returnTo={url_for("go_home", _external=True)}'
             }), 303)
-            return res
         else:
             if g.user is not {}:
                 res = make_response(Document(data={
@@ -456,13 +548,17 @@ def log_out():
                     'message': 'You don\'t exist already lol'
                 }).to_json(), 301)
                 res.headers['Location'] = "/"
-                res.delete_cookie('token', path="/")
-            return res
+            res.set_cookie('token', g.user, secure=True, httponly=True, path='/', expires=0)
+        res.headers['Content-Type'] = "application/json"
+        return res
 
 
 @app.route('/logout/oauth/aftermath')
 def go_home():
-    return redirect("/")
+    response = redirect("/")
+    response.set_cookie('token', '', secure=True, httponly=True, path='/', expires=0)
+    response.set_cookie('oauth', str(True), secure=True, httponly=True, path='/', expires=0)
+    return response
 
 
 @app.route('/sender/dashboard', methods=["GET", "POST", "DELETE", "OPTIONS"])
@@ -477,26 +573,29 @@ def manage_parcels():
                     parcel_id = request.headers.get("Parcel")
                     try:
                         db.hdel(f"user:{login}:parcel", f"parcel_{parcel_id}")
-                        return make_response(Document(data={
+                        res = make_response(Document(data={
                             "status": "success",
                             "message": "parcel deleted successfully"
                         }).to_json(), 200)
                     except Exception:
-                        return make_response(Document(data={
+                        res = make_response(Document(data={
                             'status': 'fail',
                             'message': "Oops, no package found!"
                         }).to_json(), 400)
-
+                    res.headers['Content-Type'] = "application/json"
+                    return res
                 elif request.method == 'POST':
                     data = request.get_json()
                     size = data.get('size')
                     receiver = data.get('receiver')
                     custom_label = data.get('custom_label')
                     if None in [size, receiver, custom_label]:
-                        return make_response(Document(data={
+                        res = make_response(Document(data={
                             "status": "fail",
                             "message": "Missing some arguments :("
                         }).to_json(), 400)
+                        res.headers['Content-Type'] = "application/json"
+                        return res
                     parcel_id = uuid.uuid4()
                     parcel = {
                         "size": size,
@@ -511,10 +610,12 @@ def manage_parcels():
                         res.headers['Location'] = "/sender/dashboard"
                         return res
                     except Exception:
-                        return make_response(Document(data={
+                        res = make_response(Document(data={
                             'status': 'fail',
                             'message': "Oops, something went really, really wrong."
                         }).to_json(), 500)
+                        res.headers['Content-Type'] = "application/json"
+                        return res
 
                 else:
                     try:
@@ -524,10 +625,12 @@ def manage_parcels():
                             decoded_parcels.append(json.loads(user_parcels[parcel].decode("UTF-8")))
                         return render_template("dashboard.html", parcels=decoded_parcels, user=g.user)
                     except Exception:
-                        return make_response(Document(data={
+                        res = make_response(Document(data={
                             "status": "fail",
                             "message": "Oops, did not find page 'Dashboard' :O"
                         }).to_json(), 500)
+                        res.headers['Content-Type'] = "application/json"
+                        return res
             else:
                 flash("You have no access to this site")
                 return redirect("/")
@@ -544,6 +647,7 @@ def favicon():
 
 
 if __name__ == '__main__':
-
     app.debug = True
+    # socketio.run(nots)
     app.run(ssl_context='adhoc', host="0.0.0.0", port=5000)
+
