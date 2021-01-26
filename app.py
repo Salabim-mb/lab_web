@@ -399,7 +399,6 @@ def manage_notifications():
             else:
                 try:
                     notifications = get_notifications(g.user['login'], g.user['role'])
-                    print(notifications)
                     while not notifications:
                         sleep(1)
                         notifications = get_notifications(g.user['login'], g.user['role'])
@@ -648,6 +647,5 @@ def favicon():
 
 if __name__ == '__main__':
     app.debug = True
-    # socketio.run(nots)
     app.run(ssl_context='adhoc', host="0.0.0.0", port=5000)
 
