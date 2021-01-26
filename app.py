@@ -183,7 +183,7 @@ def get_notifications(login, role='sender'):
                     if role == 'sender':
                         db.hdel(f"notification:{login}", f"notification:{parsed['id']}")
                     else:
-                        db.hdel(f"notification:{login}", "notification:any_courier")
+                        db.hdel("notification:any_courier", f"notification:{parsed['id']}")
                 except Exception as e:
                     raise e
         return nots_array
